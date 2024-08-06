@@ -80,4 +80,10 @@ class SocketHelper:
     # def __delattr__(self, name: str) -> None:
     #     self.disconnect()
 
-    
+
+def build_msg(sender:str="",msg:str="",event_type:str="new_massage"):
+    return str({
+        "sender":sender,
+        "msg":msg,
+        "event_type":event_type
+    })

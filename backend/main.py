@@ -1,5 +1,5 @@
 from fastapi import FastAPI,WebSocketDisconnect,WebSocket
-from group_manager import SocketHelper,WebSocketManager
+from group_manager import SocketHelper,WebSocketManager,build_msg
 app= FastAPI()
 
 @app.get("/")
@@ -15,11 +15,11 @@ async def websocket_endpoint(websocket:WebSocket,client_id:str,group_id:str):
     await socketHelper.connect()
 
     # await socketHelper.send_personal_msg(f"{client_id} connected")
-    await socketHelper.broadcast_all(f"{client_id} joined {group_id} !!")
+    await socketHelper.broadcast_all(build_msg("server",f"{client_id} joined {group_id}","server_event"))
     try:
         while True:
             data = await websocket.receive_text()
-            await socketHelper.broadcast(f"{client_id} :  {data}")
+            await socketHelper.broadcast(build_msg(client_id,data))
 
     except WebSocketDisconnect:
         await socketHelper.disconnect()
