@@ -1,67 +1,28 @@
-from typing import Optional
 
 from fastapi import FastAPI,WebSocketDisconnect,WebSocket,status, HTTPException ,Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
 
 from group_manager import SocketHelper,WebSocketManager,build_msg
-from utils import (
+from auth.utils import (
     get_hashed_password,
     create_access_token,
     create_refresh_token,
     verify_password
 )
+from auth.db_models import User,get_db
+from auth.response_models import User_in_out,TokenSchema
 from uuid import uuid4
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
-
-from pydantic import BaseModel
-
-
-####################################### db ##########################################
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args = 
-{"check_same_thread": False})
-session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-class User(Base):
-    __tablename__="users"
-    id = Column(String(20), primary_key=True, nullable=False)
-    email=Column(String(50), unique=True)
-    password=Column(String())
-
-
-Base.metadata.create_all(bind=engine)
-
-def get_db():
-    db = session()
-    try:
-        yield db
-    finally:
-        db.close()
-
-############################ in - out models #########################################
-class User_in_out(BaseModel):
-    id:Optional[str]
-    email:str
-    password:str
-
-class TokenSchema(BaseModel):
-    access_token:str
-    refresh_token:str
+from sqlalchemy.orm import Session
+from auth.dependency import get_current_user
 
 
 
 app= FastAPI()
 
 @app.get("/")
-def home():
-    return {"data":"ok1"}
+def home(user:User_in_out = Depends(get_current_user)):
+    return {"name":user.email}
 
 
 ########################################## Auth ##########################################
