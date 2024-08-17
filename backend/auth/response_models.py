@@ -2,7 +2,11 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class User_in_out(BaseModel):
+class Request_User(BaseModel):
+    email:str
+    password:str
+    
+class Response_User(BaseModel):
     id:Optional[str]
     email:str
     password:str

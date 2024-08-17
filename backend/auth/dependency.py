@@ -12,23 +12,22 @@ from auth.utils import (
 from jose import jwt
 from pydantic import ValidationError
 
-from auth.db_models import User,get_db
-from auth.response_models import User_in_out,Payload
+from auth.db_models import User
+from db.base_db import get_db
+from auth.response_models import Response_User,Payload
 
 reuseable_oauth = OAuth2PasswordBearer(
-    tokenUrl="/login",
+    tokenUrl="auth/login",
     scheme_name="JWT"
 )
 
 
-async def get_current_user(token: str = Depends(reuseable_oauth),db: Session = Depends(get_db)) -> User_in_out:
+async def get_curent_user_from_tocken(token:str,db:Session=next(get_db()))->Response_User:
     try:
         payload = jwt.decode(
             token, JWT_SECRET_KEY, algorithms=[ALGORITHM]
         )
-        print(payload)
         token_data = Payload(**payload)
-        print("ok")
         
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
             raise HTTPException(
@@ -52,4 +51,8 @@ async def get_current_user(token: str = Depends(reuseable_oauth),db: Session = D
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Could not find user",
         )
-    return User_in_out(**{"id":user.id,"email":user.email,"password":user.password})
+    return Response_User(**{"id":user.id,"email":user.email,"password":user.password})
+
+
+async def get_current_user(token: str = Depends(reuseable_oauth),db: Session = Depends(get_db)) -> Response_User:
+    return await get_curent_user_from_tocken(token,db)
