@@ -28,17 +28,14 @@ async def create_user(data: Request_User,db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email already exist"
         )
-    user = {
-        'email': data.email,
-        'password': get_hashed_password(data.password),
-    }
-    newUser=User(**user)   # saving user to database
+    
+    data.password = get_hashed_password(data.password)
+    newUser=User(**data.model_dump())   # saving user to database
     db.add(newUser)
     db.commit()
     db.refresh(newUser)
-    user["id"]=newUser.id
 
-    return user
+    return Response_User.model_validate(newUser)
     
 
 

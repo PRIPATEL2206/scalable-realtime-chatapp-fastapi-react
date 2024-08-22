@@ -2,7 +2,7 @@ from db.base_db import CustomBaseDB,Base
 from sqlalchemy import Column,ForeignKey,String,Table
 from sqlalchemy.orm import relationship
 
-class Chats(CustomBaseDB,Base):
+class Chat(CustomBaseDB,Base):
     __tablename__="chats"
     
     sender_id=Column(String(20),ForeignKey("users.id"))
@@ -20,4 +20,5 @@ class Group(CustomBaseDB,Base):
     
     name=Column(String(20))
     des=Column(String(50))
+    created_by=Column(String(20),ForeignKey("users.id"))
     users=relationship("User",secondary=users_groups,back_populates="groups")

@@ -22,7 +22,7 @@ reuseable_oauth = OAuth2PasswordBearer(
 )
 
 
-async def get_curent_user_from_tocken(token:str,db:Session=next(get_db()))->Response_User:
+async def get_curent_user_from_tocken(token:str,db:Session=next(get_db()))->User:
     try:
         payload = jwt.decode(
             token, JWT_SECRET_KEY, algorithms=[ALGORITHM]
@@ -46,13 +46,8 @@ async def get_curent_user_from_tocken(token:str,db:Session=next(get_db()))->Resp
     user:User = db.query(User).filter(User.email == token_data.sub).first()
     
     
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not find user",
-        )
-    return Response_User(**{"id":user.id,"email":user.email,"password":user.password})
+    return user
 
 
-async def get_current_user(token: str = Depends(reuseable_oauth),db: Session = Depends(get_db)) -> Response_User:
+async def get_current_user(token: str = Depends(reuseable_oauth),db: Session = Depends(get_db)) -> User:
     return await get_curent_user_from_tocken(token,db)

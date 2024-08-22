@@ -27,7 +27,6 @@ class GroupManager:
             await socket.send_text(msg)
 
 
-
 class WebSocketManager:
     def __init__(self) -> None:
         self.groups:dict[str,GroupManager]={}
@@ -52,7 +51,6 @@ class WebSocketManager:
     async def broadcast(self,group:str,websocket:WebSocket,msg:str):
         assert self.groups.get(group,False) , f"group {group} not found"
         await self.groups[group].broadcast(websocket,msg)
-
 
 
 class SocketHelper:
