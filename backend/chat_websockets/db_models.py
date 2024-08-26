@@ -1,5 +1,5 @@
 from db.base_db import CustomBaseDB,Base
-from sqlalchemy import Column,ForeignKey,String,Table
+from sqlalchemy import Column,ForeignKey,String,Table,Boolean
 from sqlalchemy.orm import relationship
 
 class Chat(CustomBaseDB,Base):
@@ -7,6 +7,7 @@ class Chat(CustomBaseDB,Base):
     
     sender_id=Column(String(20),ForeignKey("users.id"))
     group_id=Column(String(20),ForeignKey("groups.id"))
+    is_conection_req=Column(Boolean,default=False)
     msg=Column(String())
 
 
@@ -20,5 +21,9 @@ class Group(CustomBaseDB,Base):
     
     name=Column(String(20))
     des=Column(String(50))
+    is_individual_group=Column(Boolean,default=False)
     created_by=Column(String(20),ForeignKey("users.id"))
     users=relationship("User",secondary=users_groups,back_populates="groups")
+
+    def has_user(self,user_id:str)->bool:
+        return user_id in [user.id for user in self.users ]

@@ -9,7 +9,8 @@ from auth.utils import (
 from auth.db_models import User
 from auth.response_models import Response_User,TokenSchema,Request_User
 from sqlalchemy.orm import Session
-
+from auth.dependency import get_current_user
+from utils.genratore_util import get_genratore
 from db.base_db import get_db
 
 
@@ -31,9 +32,7 @@ async def create_user(data: Request_User,db: Session = Depends(get_db)):
     
     data.password = get_hashed_password(data.password)
     newUser=User(**data.model_dump())   # saving user to database
-    db.add(newUser)
-    db.commit()
-    db.refresh(newUser)
+    newUser.add(db)
 
     return Response_User.model_validate(newUser)
     
@@ -61,3 +60,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),db: Session = D
         "refresh_token": create_refresh_token(user.email),
     }
 
+@router.get('/users')
+def get_users(user_ids:list[str],user:User=Depends(get_current_user)):
+    pass

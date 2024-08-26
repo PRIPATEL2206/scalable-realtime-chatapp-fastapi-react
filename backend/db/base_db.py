@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column,DATETIME,String
+from sqlalchemy.orm import Session
 from uuid import uuid4
 import datetime 
 
@@ -32,5 +33,11 @@ class CustomBaseDB():
     created_at=Column( DATETIME, default=datetime.datetime.now(datetime.UTC))
     last_updated=Column(DATETIME,default=datetime.datetime.now(datetime.UTC),onupdate=datetime.datetime.now(datetime.UTC))
 
-
+    def add(self,db:Session):
+        db.add(self)
+        db.commit()
+        db.refresh(self)
+        
+    def update(self,db:Session):
+        db.commit()
 
