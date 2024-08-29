@@ -19,7 +19,7 @@ class Response_User(BaseModel):
 
 
 class TokenSchema(BaseModel):
-    id:str
+    user:Response_User
     access_token:str
     refresh_token:str
 

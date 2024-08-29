@@ -21,7 +21,7 @@ router=APIRouter(
 )
 
 
-@router.post('/signup', summary="Create new user", response_model=Response_User)
+@router.post('/register', summary="Create new user", response_model=Response_User)
 async def create_user(data: Request_User,db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
     
@@ -57,7 +57,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),db: Session = D
         )
     
     return {
-        "id":user.id,
+        "user":Response_User.model_validate(user),
         "access_token": create_access_token(user.email),
         "refresh_token": create_refresh_token(user.email),
 
