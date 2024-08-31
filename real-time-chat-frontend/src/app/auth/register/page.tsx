@@ -1,4 +1,5 @@
 'use client'
+import { useAuth } from '@/hooks/auth-provider';
 import { getDataFromFormEvent } from '@/utils/form-utils';
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
@@ -6,39 +7,20 @@ import React, { useState } from 'react'
 
 export default function register() {
     const [isLoding, setIsLoding] = useState(false);
-    const router = useRouter();
+    const { register } = useAuth()
 
     function handleSubmit(form: React.FormEvent<HTMLFormElement>) {
         form.preventDefault()
         setIsLoding(true)
         const { username, email, password } = getDataFromFormEvent(form)
-        console.log(JSON.stringify({
+        register({
             name: username,
-            email: email,
-            password: password
-        }))
-        fetch("http://127.0.0.1:8000/auth/register",
-            {
-                method: "post",
-                headers: {
-                    accept: "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    name: username,
-                    email: email,
-                    password: password
-                })
-            }
-        ).then(async (data) => {
-            if (data.status == 200) {
-                console.log(await data.json()
-                )
-            }
-            else{
-                console.log("error",data)
-            }
-        }).finally(() => {
+            email,
+            password
+        })
+        .then(value => console.log("register ", value))
+        .catch(error => console.log(error))
+        .finally(() => {
             setIsLoding(false)
         })
     }

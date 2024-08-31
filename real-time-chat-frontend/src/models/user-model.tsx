@@ -24,6 +24,14 @@ class User {
         this.access_token = access_token
         this.refresh_token = refresh_token
     }
+
+    toJson =() =>({
+        id:this.id,
+        name:this.name,
+        email:this.email,
+        access_token:this.access_token,
+        refresh_token:this.refresh_token
+    })
 }
 
 export {User}
