@@ -29,15 +29,19 @@ def create_tables():
     Base.metadata.create_all(bind=engine)
 
 class CustomBaseDB():
-    id = Column(String(20),default=str(uuid4()) ,primary_key=True, nullable=False)
-    created_at=Column( DATETIME, default=datetime.datetime.now(datetime.UTC))
-    last_updated=Column(DATETIME,default=datetime.datetime.now(datetime.UTC),onupdate=datetime.datetime.now(datetime.UTC))
+    id = Column(String(20) ,primary_key=True, nullable=False)
+    created_at=Column( DATETIME, )
+    last_updated=Column(DATETIME)
 
     def add(self,db:Session):
+        self.id = str(uuid4())
+        self.created_at=datetime.datetime.now(datetime.UTC)
+        self.last_updated=datetime.datetime.now(datetime.UTC)
         db.add(self)
         db.commit()
         db.refresh(self)
         
     def update(self,db:Session):
+        self.last_updated=datetime.datetime.now(datetime.UTC)
         db.commit()
 

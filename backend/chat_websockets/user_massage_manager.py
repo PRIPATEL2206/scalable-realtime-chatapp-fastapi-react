@@ -5,6 +5,8 @@ from db.base_db import get_db
 from auth.db_models import User
 from chat_websockets.constants import Events
 
+import json
+
 class UserSocketManager:
     def __init__(self) -> None:
         self.users:dict[str,WebSocket]={}
@@ -15,10 +17,9 @@ class UserSocketManager:
 
         self.users[user_id]=websocket
 
-        await self.users[user_id].accept()
-
-    async def disconnect(self,user_id:str,websocket:WebSocket):
+    async def disconnect(self,user_id:str):
         assert self.users.get(user_id,False) , f"user with {user_id} not found"
+        await self.users[user_id].close()
         del self.users[user_id]
 
     async def send_personal_msg(self,user_id:str,msg:str):
@@ -60,7 +61,7 @@ class UserSocketHelper:
        await self.userScocketManager.connect(self.user.id,self.websocket)
 
     async def disconnect(self):
-        await self.userScocketManager.disconnect()
+        await self.userScocketManager.disconnect(self.user.id)
 
     async def send_personal_msg(self,msg:str):
         await self.userScocketManager.send_personal_msg(self.user.id,msg)
@@ -78,13 +79,13 @@ class UserSocketHelper:
 
 class MassageBuilder:
     def build_massage_recive_event(msg:any)->str:
-        return str({
+        return json.dumps({
                 "event":Events.MASSAGE_RECIVE,
                 "chat":msg
                 })
     
     def build_massage_send_event(msg:any)->str:
-        return str({
+        return json.dumps({
                 "event":Events.MASSAGE_SEND,
                 "chat":msg
                 })

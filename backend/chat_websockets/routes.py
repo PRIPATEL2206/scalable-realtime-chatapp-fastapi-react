@@ -15,7 +15,7 @@ import json
 
 
 router = APIRouter(
-    prefix="/ws",
+    prefix="/chats",
  tags=["chats_websocket"],
 )
 
@@ -91,30 +91,35 @@ async def get_all_chats(group_id:str,db:Session=Depends(get_db),user:User=Depend
 
 # Authorization
 
-@router.websocket("/chats")
+# @router.websocket("/ws")
+# async def test(websocket:WebSocket):
+#     await websocket.accept()
+#     while True:
+#         data= await websocket.receive_text() 
+#         print(data)
+
+@router.websocket("/ws")
 async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
-    try :
-        token=websocket.headers.get("Authorization")
-        user = await get_curent_user_from_tocken(token=token)
-        socketHelper = UserSocketHelper(userSocketManager,user,websocket)
+    await websocket.accept()
+    socketHelper:UserSocketHelper = None
+    user:User = None
 
-    except :
-        raise  HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    await socketHelper.connect()
-    print(user.email + " joined")
     try:
         while True:
             try :
                 data:dict = json.loads( await websocket.receive_text())
+                print(data)
                 event=data["event"]
                 data=data["data"]
 
                 match event :
+
+                    case Events.AUTHORIZATION:
+                        token=data["Authorization"]
+                        print(token)
+                        user = await get_curent_user_from_tocken(token=token)
+                        socketHelper = UserSocketHelper(userSocketManager,user,websocket)
+                        await socketHelper.connect()
 
                     case Events.MASSAGE_SEND:
                         req_chat=Req_Chat(**data)
@@ -122,12 +127,10 @@ async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
                         if group and group.has_user(user.id) :
                             chat=Chat(**req_chat.model_dump())
                             chat.sender_id=user.id
-                            print(chat.id)
-                            print(chat.created_at)
                             chat.add(db)
                             chat_res=Res_Chat.model_validate(chat)
-                            await socketHelper.send_personal_msg(MassageBuilder.build_massage_send_event(chat_res))
-                            await socketHelper.broadcast_all_in_group(chat.group_id,MassageBuilder.build_massage_recive_event(chat_res)) 
+                            await socketHelper.send_personal_msg(MassageBuilder.build_massage_send_event(chat_res.model_dump_json()))
+                            await socketHelper.broadcast_all_in_group(chat.group_id,MassageBuilder.build_massage_recive_event(chat_res.model_dump_json())) 
                         else:
                             await socketHelper.send_personal_msg(MassageBuilder.build_error_event({"error":"error while sending massage"}))
 
@@ -157,9 +160,12 @@ async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
                         await socketHelper.broadcast_all_in_group(chat.group_id,MassageBuilder.build_group_add_event(chat_res))
 
             except Exception as e:
-                    await socketHelper.send_personal_msg(MassageBuilder.build_error_event(f'error:{e}'))
+                    if type(e) == WebSocketDisconnect:
+                        raise WebSocketDisconnect()
+                    await websocket.send_text(MassageBuilder.build_error_event(f'error:{e}'))
                     print(e)
 
-    except WebSocketDisconnect:
-        await socketHelper.disconnect()
+    except WebSocketDisconnect :
+        if socketHelper:
+            await socketHelper.disconnect()
 
