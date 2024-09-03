@@ -1,5 +1,6 @@
 'use client'
 import { useAuth } from '@/hooks/auth-provider';
+import { tost } from '@/hooks/tost-provider';
 import { getDataFromFormEvent } from '@/utils/form-utils';
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ import React, { useState } from 'react'
 export default function register() {
     const [isLoding, setIsLoding] = useState(false);
     const { register } = useAuth()
+    const router = useRouter()
 
     function handleSubmit(form: React.FormEvent<HTMLFormElement>) {
         form.preventDefault()
@@ -18,8 +20,12 @@ export default function register() {
             email,
             password
         })
-        .then(value => console.log("register ", value))
-        .catch(error => console.log(error))
+        .then(value => {
+            tost.sucsess("register sucsessfully")
+            console.log("register ", value);
+            router.push("/auth/login")
+        })
+        .catch(error => tost.error(error.message))
         .finally(() => {
             setIsLoding(false)
         })

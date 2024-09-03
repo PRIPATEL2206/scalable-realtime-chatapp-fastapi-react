@@ -3,6 +3,7 @@ import { getDataFromFormEvent } from '@/utils/form-utils'
 import Link from 'next/link'
 import React, { useState } from 'react'
 import { useAuth } from '@/hooks/auth-provider';
+import { tost } from '@/hooks/tost-provider';
 
 export default function login() {
 
@@ -17,11 +18,16 @@ export default function login() {
             email,
             password
         })
-        .then(value => console.log("login ", value))
-        .catch(error=>console.log(error))
-        .finally(() => {
-            setIsLoding(false)
-        })
+            .then(value => {
+                tost.sucsess("login successsull");
+                console.log("login ", value);
+            })
+            .catch(error =>
+                tost.error(error.message)
+            )
+            .finally(() => {
+                setIsLoding(false)
+            })
     }
 
     return (

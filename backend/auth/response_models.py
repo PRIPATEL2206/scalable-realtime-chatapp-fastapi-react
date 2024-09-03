@@ -32,3 +32,8 @@ class Payload(BaseModel):
     sub:str
     class Config:
         from_attributes=True
+
+class RefreshTokenReqest(BaseModel):
+    refresh_token:str
+    class Config:
+        from_attributes=True

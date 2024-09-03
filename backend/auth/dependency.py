@@ -14,7 +14,7 @@ from pydantic import ValidationError
 
 from auth.db_models import User
 from db.base_db import get_db
-from auth.response_models import Response_User,Payload
+from auth.response_models import Payload
 
 reuseable_oauth = OAuth2PasswordBearer(
     tokenUrl="auth/login",

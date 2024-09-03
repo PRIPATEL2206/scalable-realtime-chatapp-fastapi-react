@@ -24,10 +24,8 @@ const Chats = () => {
       console.log(e.data)
       const msg =JSON.parse(e.data)
       console.log(msg)
-      console.log(JSON.parse(msg.chat))
-      // if(msg["event"] && msg["event"]=="massage_send"){
-      //   console.log(JSON.parse(msg))
-      // }
+      console.log(JSON.parse(msg.data.chat))
+      
     }
 
     ws.close = (e) => {

@@ -78,35 +78,52 @@ class UserSocketHelper:
 #     })
 
 class MassageBuilder:
-    def build_massage_recive_event(msg:any)->str:
+
+    def build(event:str,msg:any):
         return json.dumps({
-                "event":Events.MASSAGE_RECIVE,
+            "event":event,
+            "data":msg
+        })
+
+    def build_massage_recive_event(msg:any)->str:
+        return MassageBuilder.build(
+            Events.MASSAGE_RECIVE,
+            {
                 "chat":msg
-                })
+            }
+        )
     
     def build_massage_send_event(msg:any)->str:
-        return json.dumps({
-                "event":Events.MASSAGE_SEND,
+        return MassageBuilder.build(
+            Events.MASSAGE_SEND,
+            {
                 "chat":msg
-                })
-    
-    def build_unauthorized_event(msg:any)->str:
-        return str({
-            "event":Events.UNAUTHORIZED,
-            "msg":msg
-        })
-    
+            }
+        )
+        
     def build_group_connect_req_event(msg:any)->str:
-        return str({
-            "event":Events.GROUP_JOIN_REQ,
-            "msg":msg
-        })
+        return MassageBuilder.build(
+            Events.GROUP_JOIN_REQ,
+            {
+                "chat":msg
+            }
+        )
     
     def build_group_add_event(msg:any)->str:
-        return str({
-            "event":Events.GROUP_ADD,
-            "msg":msg
-        })
+        return MassageBuilder.build(
+            Events.GROUP_ADD,
+            {
+                "chat":msg
+            }
+        )
+    
+    def build_unauthorized_event(msg:any)->str:
+        return MassageBuilder.build(
+            Events.UNAUTHORIZED,
+            {
+                "msg":msg
+            }
+        )
     
     def build_error_event(msg:any)->str:
         return str({

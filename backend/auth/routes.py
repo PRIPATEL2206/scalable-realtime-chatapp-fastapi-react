@@ -5,14 +5,21 @@ from auth.utils import (
     get_hashed_password,
     create_access_token,
     create_refresh_token,
-    verify_password
+    verify_password,
+    ALGORITHM,
+    JWT_REFRESH_SECRET_KEY
 )
+
 from auth.db_models import User
-from auth.response_models import Response_User,TokenSchema,Request_User
+from auth.response_models import Response_User,TokenSchema,Request_User,Payload,RefreshTokenReqest
 from sqlalchemy.orm import Session
 from auth.dependency import get_current_user
 from utils.genratore_util import get_genratore
 from db.base_db import get_db
+from jose import jwt
+from pydantic import ValidationError
+from datetime import datetime
+
 
 
 router=APIRouter(
@@ -62,6 +69,42 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(),db: Session = D
         "refresh_token": create_refresh_token(user.email),
 
     }
+
+@router.post('/refresh-token',response_model=TokenSchema)
+def refresh_token(request:RefreshTokenReqest,db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(
+            request.refresh_token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM]
+        )
+        token_data = Payload(**payload)
+        
+        if datetime.fromtimestamp(token_data.exp) < datetime.now():
+            raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh Token expired",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        user = db.query(User).filter(User.email == token_data.sub).first()
+        if user == None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect token"
+            )
+        return {
+        "user":Response_User.model_validate(user),
+        "access_token": create_access_token(user.email),
+        "refresh_token": request.refresh_token,
+    }
+             
+
+        
+    except(jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
 
 @router.post('/users')
 def get_users(user_ids:list[str]=None,db:Session=Depends(get_db)):

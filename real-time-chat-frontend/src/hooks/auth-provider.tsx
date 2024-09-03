@@ -69,6 +69,7 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
             setUser(new User({ ...data, ...data["user"] }));
             return true;
         }
+        // console.log(await response.json())
         throw new Error(JSON.stringify(await response.json()));
     }
 
