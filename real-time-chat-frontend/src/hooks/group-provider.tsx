@@ -7,7 +7,9 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 interface GroupContextInterface {
   groups: Group[]
   chats: Chat[]
-  setCurentGroupIndex:(index:number)=>void
+  setCurentGroupIndex: (index: number) => void
+  sendMassage: (msg: string) => void
+
 }
 const GroupContext = createContext<GroupContextInterface | undefined>(undefined);
 
@@ -19,19 +21,20 @@ const useGroup = () => {
   return context;
 }
 
+let sendMassage: (msg: string) => void;
+
 interface GroupPropsInterface {
   children: ReactNode,
   user: User,
-  onError?: (e: Error) => void
+  onError?: (e: Error) => void,
+  ws?: WebSocket
 
 }
-const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError }) => {
+const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError, ws }) => {
 
   const [groups, setGroups] = useState<Group[]>([]);
   const [curentGroupIndex, setCurentGroupIndex] = useState<number>(-1);
   const [chats, setChats] = useState<Chat[]>([]);
-
-  let ws : WebSocket | null=null;
 
 
   const fetchGroups = async () => {
@@ -57,7 +60,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError 
         {
           reader: response.body!.getReader(),
           onData: (data) => {
-            const group = new Group({ ...JSON.parse(data) })
+            const group = new Group(JSON.parse(data) )
             setGroups(groups => [...groups, group])
           },
           onComplate: () => {
@@ -97,8 +100,8 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError 
       streamDataFromReader({
         reader: response.body!.getReader(),
         onData: (data) => {
-          const chat =new Chat({...JSON.parse(data)})
-          setChats(chats=>[...chats,chat])
+          const chat = new Chat(JSON.parse(data) )
+          setChats(chats => [...chats, chat])
         }
       }
       );
@@ -111,17 +114,45 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError 
 
   }
 
+  const sendMassage = (msg: string) => {
+    if (curentGroupIndex !== -1) {
+      ws?.send(JSON.stringify({
+        "event": "massage_send",
+        "data": {
+          "group_id": groups[curentGroupIndex].id,
+          "msg": msg
+        }
+      }));
+    }
+  }
+
   useEffect(() => {
-    fetchGroups()
+    fetchGroups();
   }, [user])
 
-  useEffect(()=>{
-    if (curentGroupIndex !==-1) {
+  useEffect(() => {
+    if (ws) {
+      ws.onmessage = (e) => {
+        const msg = JSON.parse(e.data)
+        if (msg.event == "massage_send" || msg.event == "massage_recive") {
+         const chat= new Chat(JSON.parse(msg.data.chat));
+
+         if(msg.event == "massage_recive"){
+          setChats(chats=>[...chats,chat])
+         }
+        }
+      }
+    }
+
+  }, [ws])
+
+  useEffect(() => {
+    if (curentGroupIndex !== -1) {
       fetchChats(groups[curentGroupIndex].id)
     }
-  },[curentGroupIndex])
+  }, [curentGroupIndex])
 
-  return <GroupContext.Provider value={{ groups ,chats,setCurentGroupIndex }}>
+  return <GroupContext.Provider value={{ groups, chats, setCurentGroupIndex, sendMassage }}>
     {children}
   </GroupContext.Provider>
 }
@@ -129,4 +160,4 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError 
 
 
 
-export { useGroup, GroupProvider }
+export { useGroup, GroupProvider, sendMassage }

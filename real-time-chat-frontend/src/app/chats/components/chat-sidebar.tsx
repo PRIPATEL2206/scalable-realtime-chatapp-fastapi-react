@@ -1,16 +1,17 @@
 import { useAuth } from '@/hooks/auth-provider'
-import { useGroup } from '@/hooks/group-provider'
+import { sendMassage, useGroup } from '@/hooks/group-provider'
 import { getDataFromFormEvent } from '@/utils/form-utils'
 import React, { useEffect, useRef } from 'react'
 
 export default function ChatSideBar() {
-  const { chats } = useGroup()
+  const { chats ,sendMassage } = useGroup()
   const { user } = useAuth()
 
   const handleSendMassge = (form: React.FormEvent<HTMLFormElement>)=>{
     form.preventDefault()
     const { chat } = getDataFromFormEvent(form)
     console.log(chat)
+    sendMassage(chat)
   }
 
   useEffect(() => {
@@ -25,9 +26,9 @@ export default function ChatSideBar() {
           chat => {
             const isCurentUser = chat.sender_id === user?.id
             return (
-              <div className={`flex  ${isCurentUser ? "justify-end" : ""} `}>
+              <div  key={chat.id} className={`flex  ${isCurentUser ? "justify-end" : ""} `}>
 
-                <div key={chat.id} className={`w-fit min-w-12 p-2 my-2 rounded ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
+                <div className={`w-fit min-w-12 p-2 my-2 rounded ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
                   <h6>{chat.msg}</h6>
                 </div>
               </ div>
