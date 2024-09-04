@@ -51,7 +51,7 @@ async def get_all_groups(db:Session=Depends(get_db),user:User=Depends(get_curren
     return StreamingResponse(
         content=get_genratore(map(
                 lambda group:Res_Group.model_validate(group).model_dump_json(),
-               user.groups 
+               sorted(user.groups,key=lambda group:group.last_updated,reverse=True) 
                 )),
         media_type="text/event-stream")
 

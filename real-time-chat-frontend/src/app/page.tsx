@@ -1,4 +1,6 @@
 'use client'
+
+// TODO : remove axios packeg
 import { tost } from "@/hooks/tost-provider";
 
 export default function Home() {
