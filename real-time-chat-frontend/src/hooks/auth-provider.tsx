@@ -31,17 +31,14 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     const [isLogin, setIsLogin] = useState<boolean>(false);
 
     useEffect(() => {
-        console.log("empty call")
         const userString = localStorage.getItem("curentUser");
         if (userString !== null) {
             const newUser = new User(JSON.parse(userString))
             setUser(newUser);
             setIsLogin(true);
-            console.log("setuser", newUser)
         }
     }, []);
     useEffect(() => {
-        console.log("user call")
         setIsLogin(user !== null)
         if (user) {
             localStorage.setItem("curentUser", JSON.stringify(user.toJson()))

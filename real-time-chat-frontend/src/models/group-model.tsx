@@ -9,39 +9,39 @@ class Group {
     constructor({
         id,
         name,
-        email,
-        access_token,
-        refresh_token,
+        last_updated,
+        created_at,
+        created_by,
         des,
         is_individual_group = false
     }: {
         id: string,
         name: string,
-        email: string,
-        access_token: string,
-        refresh_token: string,
-        des:string,
-        is_individual_group:boolean
+        last_updated: string,
+        created_at: string,
+        created_by: string,
+        des: string,
+        is_individual_group: boolean
     }
     ) {
-        this.id = id;
-        this.name = name;
-        this.last_updated = email
-        this.created_at = access_token
-        this.created_by = refresh_token
-        this.des=des,
-        this.is_individual_group=is_individual_group
+        this.id = id
+        this.name = name
+        this.last_updated = last_updated
+        this.created_at = created_at
+        this.created_by = created_by
+        this.des = des
+        this.is_individual_group = is_individual_group
     }
 
-    toJson =() =>({
-        id:this.id,
-        name:this.name,
-        email:this.last_updated,
-        access_token:this.created_at,
-        refresh_token:this.created_by,
-        des:this.des,
-        is_individual_group:this.is_individual_group
+    toJson = () => ({
+        id: this.id,
+        name: this.name,
+        last_updated: this.last_updated,
+        created_at: this.created_at,
+        created_by: this.created_by,
+        des: this.des,
+        is_individual_group: this.is_individual_group
     })
 }
 
-export {Group}
+export { Group }

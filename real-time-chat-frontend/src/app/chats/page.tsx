@@ -1,16 +1,17 @@
 'use client'
 import { loginRequired, useAuth } from '@/hooks/auth-provider'
-import { streamDataFromReader } from '@/utils/stream-data'
-import axios from 'axios'
-import React, { useEffect, useMemo } from 'react'
+import { GroupProvider } from '@/hooks/group-provider'
+import React, { useEffect } from 'react'
+import GroupSideBar from './components/group-sidebar'
+import ChatSideBar from './components/chat-sidebar'
 
 
 const Chats = () => {
-  const { user,logout } = useAuth()
+  const { user, logout } = useAuth()
   let ws: WebSocket | null = null;
 
 
-  
+
   // useEffect(() => {
   //   if (ws === null) {
   //     console.log("ok")
@@ -36,7 +37,7 @@ const Chats = () => {
 
   // }, [user])
 
-  useEffect(   () =>  {
+  useEffect(() => {
 
   }, [])
 
@@ -55,10 +56,21 @@ const Chats = () => {
   }
 
   return (
-    <div>
-      <h1>user name {user?.name}</h1>
-      <button onClick={handleClick}>send</button>
-    </div>
+    <GroupProvider user={user!}  onError={(e)=>{
+      console.log(e);
+      logout();
+      }}>
+
+      <div className='flex w-screen h-screen overflow-hidden'>
+        <GroupSideBar/>
+        <ChatSideBar/>
+
+        {/* <h1>user name {user?.name}</h1>
+      <button onClick={handleClick}>send</button> */}
+
+      </div>
+    </GroupProvider>
+
   )
 }
 

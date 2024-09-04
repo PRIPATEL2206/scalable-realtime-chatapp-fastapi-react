@@ -1,56 +1,132 @@
+import { Chat } from '@/models/chat-model';
 import { Group } from '@/models/group-model';
 import { User } from '@/models/user-model';
 import { streamDataFromReader } from '@/utils/stream-data';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 interface GroupContextInterface {
-   groups:Group[]
+  groups: Group[]
+  chats: Chat[]
+  setCurentGroupIndex:(index:number)=>void
 }
 const GroupContext = createContext<GroupContextInterface | undefined>(undefined);
 
 const useGroup = () => {
-    const context = useContext(GroupContext);
-    if (context === undefined) {
-        throw new Error("useAuth must most be use with in a AuthProvider");
-    }
-    return context;
+  const context = useContext(GroupContext);
+  if (context === undefined) {
+    throw new Error("useAuth must most be use with in a AuthProvider");
+  }
+  return context;
 }
 
 interface GroupPropsInterface {
-    children: ReactNode,
-    user:User,
-    onError:(e:Error)=>void
+  children: ReactNode,
+  user: User,
+  onError?: (e: Error) => void
 
 }
-const GroupProvider: React.FC<GroupPropsInterface> = ({ children,user,onError }) => {
+const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError }) => {
 
-    const [groups,setGroups]=useState<Group[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [curentGroupIndex, setCurentGroupIndex] = useState<number>(-1);
+  const [chats, setChats] = useState<Chat[]>([]);
 
-    useEffect(()=>{
+  let ws : WebSocket | null=null;
 
-     fetch("http://127.0.0.1:8000/chats/groups",{
-        method:"get",
+
+  const fetchGroups = async () => {
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/chats/groups", {
+        method: "get",
         headers: {
           accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
           "Authorization": `Bearer ${user?.access_token}`
-      },
-        }).then(async(data) => {
-          streamDataFromReader(data.body!.getReader(),(data)=>{
-            const group = new Group({...JSON.parse(data)})
-            setGroups(groups=>[...groups,group])
-          })
-        }).catch(e=>{
-           onError(new Error(e));
-        })
-    },[user])
-    
-    return <GroupContext.Provider value={{ groups }}>
-        {children}
-    </GroupContext.Provider>
+        },
+      });
+
+      if (response.status !== 200) {
+        const error = await response.json()
+        console.log(error)
+        if (onError)
+          onError(Error(error))
+      }
+      setGroups(g => [])
+      streamDataFromReader(
+        {
+          reader: response.body!.getReader(),
+          onData: (data) => {
+            const group = new Group({ ...JSON.parse(data) })
+            setGroups(groups => [...groups, group])
+          },
+          onComplate: () => {
+            if (groups.length > 0)
+              setCurentGroupIndex(-1)
+          }
+        }
+        ,)
+    }
+    catch (e: any) {
+      console.log(e)
+      if (onError)
+        onError(new Error(e));
+    }
+
+  }
+
+  const fetchChats = async (groupId: string) => {
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/chats/get-chats?group_id=${groupId}`, {
+        method: "get",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Bearer ${user?.access_token}`
+        },
+      });
+
+      if (response.status !== 200) {
+        const error = await response.json()
+        console.log(error)
+        if (onError)
+          onError(Error(error))
+      }
+      setChats(c => [])
+      streamDataFromReader({
+        reader: response.body!.getReader(),
+        onData: (data) => {
+          const chat =new Chat({...JSON.parse(data)})
+          setChats(chats=>[...chats,chat])
+        }
+      }
+      );
+    }
+    catch (e: any) {
+      console.log(e)
+      if (onError)
+        onError(new Error(e));
+    }
+
+  }
+
+  useEffect(() => {
+    fetchGroups()
+  }, [user])
+
+  useEffect(()=>{
+    if (curentGroupIndex !==-1) {
+      fetchChats(groups[curentGroupIndex].id)
+    }
+  },[curentGroupIndex])
+
+  return <GroupContext.Provider value={{ groups ,chats,setCurentGroupIndex }}>
+    {children}
+  </GroupContext.Provider>
 }
 
 
 
 
-export { useGroup , GroupProvider  }
+export { useGroup, GroupProvider }
