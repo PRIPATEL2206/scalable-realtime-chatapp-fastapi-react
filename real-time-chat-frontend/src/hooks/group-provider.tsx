@@ -7,8 +7,10 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 interface GroupContextInterface {
   groups: Group[]
   chats: Chat[]
-  setCurentGroupIndex: (index: number) => void
+  curentGroup?:Group
+  setCurentGroupIndex: (group:Group) => void
   sendMassage: (msg: string) => void
+  createGroup: (groupName: string,des:string,isIndividual?:boolean) => Promise<void>
 
 }
 const GroupContext = createContext<GroupContextInterface | undefined>(undefined);
@@ -33,7 +35,7 @@ interface GroupPropsInterface {
 const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError, ws }) => {
 
   const [groups, setGroups] = useState<Group[]>([]);
-  const [curentGroupIndex, setCurentGroupIndex] = useState<number>(-1);
+  const [curentGroup, setCurentGroup] = useState<Group>();
   const [chats, setChats] = useState<Chat[]>([]);
 
 
@@ -60,13 +62,10 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
         {
           reader: response.body!.getReader(),
           onData: (data) => {
-            const group = new Group(JSON.parse(data) )
+            const group = new Group(JSON.parse(data))
             setGroups(groups => [...groups, group])
           },
-          onComplate: () => {
-            if (groups.length > 0)
-              setCurentGroupIndex(-1)
-          }
+         
         }
         ,)
     }
@@ -100,7 +99,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       streamDataFromReader({
         reader: response.body!.getReader(),
         onData: (data) => {
-          const chat = new Chat(JSON.parse(data) )
+          const chat = new Chat(JSON.parse(data))
           setChats(chats => [...chats, chat])
         }
       }
@@ -114,50 +113,76 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
 
   }
 
-  const sendMassage = (msg: string) => {
-    if (curentGroupIndex !== -1) {
+  sendMassage = (msg: string) => {
+    if (curentGroup) {
       ws?.send(JSON.stringify({
         "event": "massage_send",
         "data": {
-          "group_id": groups[curentGroupIndex].id,
+          "group_id": curentGroup.id,
           "msg": msg
         }
       }));
     }
   }
 
-  useEffect(() => {
-    fetchGroups();
-  }, [user])
+  const createGroup = async (groupName: string,des:string,isIndividual:boolean=false) => {
+    const response = await fetch("http://127.0.0.1:8000/chats/group", {
+      method: "post",
+      headers: {
+        accept: "application/json",
+        'Authorization': `Bearer ${user.access_token}`,
+        'Content-Type': "application/json"
+      },
+      body: JSON.stringify({
+        name: groupName,
+        is_individual_group: isIndividual,
+        des: des
+      })
+    });
+    if (response.status!==200) {
+      throw Error(JSON.stringify(await response.json()))
+    }
+    const data = await response.json()
+    const newGroup = new Group({...data});
+    setGroups(groups=>[newGroup,...groups])
+  }
 
   useEffect(() => {
-    if (ws) {
-      ws.onmessage = (e) => {
-        const msg = JSON.parse(e.data)
-        if (msg.event == "massage_send" || msg.event == "massage_recive") {
-         const chat= new Chat(JSON.parse(msg.data.chat));
+      fetchGroups();
+    }, [user])
 
-         if(msg.event == "massage_recive"){
-          setChats(chats=>[...chats,chat])
-         }
+  useEffect(() => {
+      if (ws) {
+        ws.onmessage = (e) => {
+          const msg = JSON.parse(e.data)
+          if (msg.event == "massage_send" || msg.event == "massage_recive") {
+            const chat = new Chat(JSON.parse(msg.data.chat));
+            if (msg.event == "massage_recive") {
+              setChats(chats => [...chats, chat]);
+
+              setGroups(groups=>{
+                const index = groups.map(groups=>groups.id).indexOf(chat.group_id)
+                return [groups[index],...groups.slice(0,index),...groups.slice(index+1,groups.length)]
+              })
+            }
+          }
         }
       }
-    }
 
-  }, [ws])
+    }, [ws])
 
   useEffect(() => {
-    if (curentGroupIndex !== -1) {
-      fetchChats(groups[curentGroupIndex].id)
-    }
-  }, [curentGroupIndex])
+      if (curentGroup) {
+        fetchChats(curentGroup.id)
+      }
+    }, [curentGroup])
 
-  return <GroupContext.Provider value={{ groups, chats, setCurentGroupIndex, sendMassage }}>
-    {children}
-  </GroupContext.Provider>
-}
-
-
+  return <GroupContext.Provider value={{ groups, chats, setCurentGroupIndex: setCurentGroup, sendMassage, createGroup,curentGroup }}>
+      {children}
+    </GroupContext.Provider>
+  }
 
 
-export { useGroup, GroupProvider, sendMassage }
+
+
+  export { useGroup, GroupProvider, sendMassage }

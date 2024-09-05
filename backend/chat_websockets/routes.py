@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from chat_websockets.constants import Events
 from utils.genratore_util import get_genratore
 import json
+import datetime
 
 
 router = APIRouter(
@@ -128,6 +129,8 @@ async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
                             chat=Chat(**req_chat.model_dump())
                             chat.sender_id=user.id
                             chat.add(db)
+                            group.last_updated=datetime.datetime.now(datetime.UTC)
+                            group.update(db)
                             chat_res=Res_Chat.model_validate(chat)
                             await socketHelper.send_personal_msg(MassageBuilder.build_massage_send_event(chat_res.model_dump_json()))
                             await socketHelper.broadcast_all_in_group(chat.group_id,MassageBuilder.build_massage_recive_event(chat_res.model_dump_json())) 
