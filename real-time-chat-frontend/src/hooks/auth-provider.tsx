@@ -1,6 +1,6 @@
 import { User } from '@/models/user-model';
 import { redirect } from 'next/navigation';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 interface AuthContextInterface {
     user: User | null
@@ -30,12 +30,37 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLogin, setIsLogin] = useState<boolean>(false);
 
+    const getRefreshTocken = async (reftoken: string) => {
+        const response = await fetch("http://127.0.0.1:8000/auth/refresh-token", {
+            method: "post",
+            headers: {
+                accept: "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                refresh_token:reftoken
+            })
+        });
+        if (response.status !== 200) {
+            throw Error(`${await response.json()}`)
+        }
+        const data = await response.json()
+        return new User({ ...data, ...data["user"] })
+    }
+
     useEffect(() => {
         const userString = localStorage.getItem("curentUser");
         if (userString !== null) {
-            const newUser = new User(JSON.parse(userString))
-            setUser(newUser);
-            setIsLogin(true);
+            const newUser = new User(JSON.parse(userString));
+            getRefreshTocken(newUser.refresh_token).then(user => {
+                setUser(user);
+                setIsLogin(true);
+            }).catch(
+                e => {
+                    console.log(e)
+                    logout()
+                }
+            )
         }
     }, []);
     useEffect(() => {
@@ -79,9 +104,9 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    name: name,
-                    email: email,
-                    password: password
+                    name,
+                    email,
+                    password
                 })
             }
         )
@@ -101,8 +126,8 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     </AuthContext.Provider>
 }
 
-function authRequired<T>(Component:(props:T)=> React.JSX.Element) {
-    const innerauthReq=(props:T)=>{
+function authRequired<T>(Component: (props: T) => React.JSX.Element) {
+    const innerauthReq = (props: T) => {
         const { isLogin } = useAuth();
 
         if (!isLogin) {
@@ -111,9 +136,9 @@ function authRequired<T>(Component:(props:T)=> React.JSX.Element) {
         return Component(props)
     }
     return innerauthReq
-    
+
 }
 
 
 
-export { useAuth, AuthProvider, isUserLogin,authRequired as loginRequired }
+export { useAuth, AuthProvider, isUserLogin, authRequired as loginRequired }

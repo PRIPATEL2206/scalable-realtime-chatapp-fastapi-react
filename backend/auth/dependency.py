@@ -42,10 +42,14 @@ async def get_curent_user_from_tocken(token:str,db:Session=next(get_db()))->User
             headers={"WWW-Authenticate": "Bearer"},
         )
         
-    # user: Union[dict[str, Any], None] = db.get(token_data.sub, None)
-    user:User = db.query(User).filter(User.email == token_data.sub).first()
-    
-    
+    user:User|None = db.query(User).get(token_data.sub)
+    if user == None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     return user
 
 
