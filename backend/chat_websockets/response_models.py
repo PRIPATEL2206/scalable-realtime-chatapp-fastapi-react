@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
 from auth.response_models import Response_User
-from chat_websockets.db_models import Group
 
 class Res_Chat(BaseModel):
     id:str

@@ -17,3 +17,7 @@ class Req_Group(BaseModel):
 
     class Config:
         from_attributes=True
+
+class AddInGroupReq(BaseModel):
+    group_id:str
+    user_to_add:str

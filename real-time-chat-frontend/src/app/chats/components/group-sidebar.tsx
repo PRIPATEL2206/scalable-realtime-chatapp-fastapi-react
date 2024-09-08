@@ -3,8 +3,8 @@ import { tost } from '@/hooks/tost-provider'
 import { getDataFromFormEvent } from '@/utils/form-utils'
 import React, { useState } from 'react'
 
-export default function GroupSideBar() {
-  const { groups, setCurentGroupIndex, createGroup,curentGroup } = useGroup()
+export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "all-user") => void }) {
+  const { groups, setCurentGroupIndex, createGroup, curentGroup } = useGroup()
 
   const [showCreateGroup, setShowCreateGroup] = useState(false)
 
@@ -19,34 +19,48 @@ export default function GroupSideBar() {
   }
 
   return (
-    <div className=" bg-red-400  min-w-80 p-5 rounded-r-md">
-      <div className="  ">
+    <div className=" bg-red-400 min-w-80 p-5 rounded-r-md relative">
+      <div className=" ">
 
         <button className='p-2 w-full hover:bg-red-600 text-start rounded' onClick={() => setShowCreateGroup(pre => !pre)}>
-          {showCreateGroup ? "close" : "+ Create Group"}
+          {showCreateGroup ? "Close" : "+ Create Group"}
         </button>
+
 
         {showCreateGroup &&
           <form className="flex flex-col gap-2 mt-2" onSubmit={handleCreateGroup}>
             <input name="groupName" className='p-2 rounded text-black' placeholder='group name' type="text" />
             <textarea name="des" className='p-2 rounded text-black' placeholder='descreption' />
-            <button className='hover:bg-red-600 rounded p-1'>create</button>
+            <button className='hover:bg-red-600 rounded py-2'>create</button>
           </form>}
       </div>
       <div className='mt-5'>
         {groups.map(
           (group, i) => (
-            <div className={`p-2 cursor-pointer ${(curentGroup && group.id === curentGroup!.id)?"bg-red-600":""} hover:bg-red-600 rounded`} onClick={() => {
-              setCurentGroupIndex(group)
-              document.getElementById("chat")?.focus()
-            }} key={group.id}>
-              <h5>{group.name}</h5>
+            <div className="" key={group.id}>
+              <div className={`flex gap-3 items-center p-2 cursor-pointer ${(curentGroup && group.id === curentGroup!.id) ? "bg-red-600" : ""} hover:bg-red-600 rounded transition-all duration-200 ease-in-out `}
+                onClick={() => {
+                  setCurentGroupIndex(group)
+                  show("chat-bar")
+                  document.getElementById("chat")?.focus()
+                }} >
+                <div className="rounded-full bg-green-500 px-4 py-2">{group.name.charAt(0).toUpperCase()}</div>
+                <h5>{group.name}</h5>
+              </div>
               <hr />
             </div>
+
           )
         )}
       </div>
-    </div>
+
+      <button className='absolute bottom-5 right-1 p-2   hover:bg-red-600 text-start rounded' onClick={() => show("all-user")}>
+        New Massage
+      </button>
+      <button className='absolute bottom-5 left-1 p-2   hover:bg-red-600 text-start rounded' onClick={() => show("all-user")}>
+        groups
+      </button>
+      </div>
 
   )
 }

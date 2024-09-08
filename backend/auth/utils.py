@@ -41,7 +41,7 @@ def create_refresh_token(subject: Union[str, Any], expires_delta: int = None) ->
     if expires_delta:
         expires_delta = datetime.now(parentDateTime.UTC) + expires_delta
     else:
-        expires_delta = datetime.now(parentDateTime.UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta = datetime.now(parentDateTime.UTC) + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
     
     to_encode = {"exp": expires_delta, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)

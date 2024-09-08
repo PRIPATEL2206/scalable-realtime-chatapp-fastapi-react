@@ -7,10 +7,12 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 interface GroupContextInterface {
   groups: Group[]
   chats: Chat[]
-  curentGroup?:Group
-  setCurentGroupIndex: (group:Group) => void
+  curentGroup?: Group
+  setCurentGroupIndex: (group: Group) => void
   sendMassage: (msg: string) => void
-  createGroup: (groupName: string,des:string,isIndividual?:boolean) => Promise<void>
+  createGroup: (groupName: string, des: string, isIndividual?: boolean) => Promise<void>
+  addUser: (userId: string) => Promise<void>
+  curentGroupUsers: { [userid: string]: User }
 
 }
 const GroupContext = createContext<GroupContextInterface | undefined>(undefined);
@@ -37,12 +39,13 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   const [groups, setGroups] = useState<Group[]>([]);
   const [curentGroup, setCurentGroup] = useState<Group>();
   const [chats, setChats] = useState<Chat[]>([]);
+  const [curentGroupUsers, setCurentGroupUsers] = useState<{ [uid: string]: User }>({});
 
 
   const fetchGroups = async () => {
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/chats/groups", {
+      const response = await fetch("http://127.0.0.1:8000/chats/get-my-groups", {
         method: "get",
         headers: {
           accept: "application/json",
@@ -65,7 +68,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
             const group = new Group(JSON.parse(data))
             setGroups(groups => [...groups, group])
           },
-         
+
         }
         ,)
     }
@@ -112,6 +115,43 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
 
   }
+  const fetUsers = async (groupId: string) => {
+
+    try {
+      const response = await fetch(`http://localhost:8000/chats/get-group-user?group_id=${groupId}`, {
+        method: "get",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Bearer ${user?.access_token}`
+        },
+      });
+
+      if (response.status !== 200) {
+        const error = await response.json()
+        console.log(error)
+        if (onError)
+          onError(Error(error))
+      }
+      setCurentGroupUsers(u => ({}))
+      streamDataFromReader({
+        reader: response.body!.getReader(),
+        onData: (data) => {
+
+          const user = new User(JSON.parse(data))
+          setCurentGroupUsers(u => ({ ...u, ...{ [user.id]: user } })
+          )
+        }
+      }
+      );
+    }
+    catch (e: any) {
+      console.log(e)
+      if (onError)
+        onError(new Error(e));
+    }
+
+  }
 
   sendMassage = (msg: string) => {
     if (curentGroup) {
@@ -125,7 +165,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
   }
 
-  const createGroup = async (groupName: string,des:string,isIndividual:boolean=false) => {
+  const createGroup = async (groupName: string, des: string, isIndividual: boolean = false) => {
     const response = await fetch("http://127.0.0.1:8000/chats/group", {
       method: "post",
       headers: {
@@ -139,50 +179,74 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
         des: des
       })
     });
-    if (response.status!==200) {
+    if (response.status !== 200) {
       throw Error(JSON.stringify(await response.json()))
     }
     const data = await response.json()
-    const newGroup = new Group({...data});
-    setGroups(groups=>[newGroup,...groups])
+    const newGroup = new Group({ ...data });
+    setGroups(groups => [newGroup, ...groups])
+  }
+
+  const addUser = async (userId: string) => {
+    if (!curentGroup) {
+      return
+    }
+    const response = await fetch("http://127.0.0.1:8000/chats/add-in-group", {
+      method: "post",
+      headers: {
+        accept: "application/json",
+        'Authorization': `Bearer ${user.access_token}`,
+        'Content-Type': "application/json"
+      },
+      body: JSON.stringify({
+        group_id: curentGroup.id,
+        user_to_add: userId
+      })
+    });
+    if (response.status !== 200) {
+      throw Error(JSON.stringify(await response.json()))
+    }
+    const data = await response.json()
+    console.log(data)
   }
 
   useEffect(() => {
-      fetchGroups();
-    }, [user])
+    fetchGroups();
+  }, [user])
 
   useEffect(() => {
-      if (ws) {
-        ws.onmessage = (e) => {
-          const msg = JSON.parse(e.data)
-          if (msg.event == "massage_send" || msg.event == "massage_recive") {
-            const chat = new Chat(JSON.parse(msg.data.chat));
-            if (msg.event == "massage_recive") {
-              setChats(chats => [...chats, chat]);
+    if (ws) {
+      ws.onmessage = (e) => {
+        const msg = JSON.parse(e.data)
+        if (msg.event == "massage_send" || msg.event == "massage_recive" || msg.event == "group_add" || msg.event == "group_join_req") {
+          const chat = new Chat(JSON.parse(msg.data.chat));
+          if (msg.event == "massage_recive") {
+            setChats(chats => [...chats, chat]);
 
-              setGroups(groups=>{
-                const index = groups.map(groups=>groups.id).indexOf(chat.group_id)
-                return [groups[index],...groups.slice(0,index),...groups.slice(index+1,groups.length)]
-              })
-            }
+            setGroups(groups => {
+              const index = groups.map(groups => groups.id).indexOf(chat.group_id)
+              return [groups[index], ...groups.slice(0, index), ...groups.slice(index + 1, groups.length)]
+            })
           }
         }
       }
+    }
 
-    }, [ws])
+  }, [ws])
 
   useEffect(() => {
-      if (curentGroup) {
-        fetchChats(curentGroup.id)
-      }
-    }, [curentGroup])
+    if (curentGroup) {
+      fetUsers(curentGroup.id)
+      fetchChats(curentGroup.id)
+    }
+  }, [curentGroup])
 
-  return <GroupContext.Provider value={{ groups, chats, setCurentGroupIndex: setCurentGroup, sendMassage, createGroup,curentGroup }}>
-      {children}
-    </GroupContext.Provider>
-  }
+  return <GroupContext.Provider value={{ groups, chats, setCurentGroupIndex: setCurentGroup, sendMassage, createGroup, curentGroup, addUser, curentGroupUsers }}>
+    {children}
+  </GroupContext.Provider>
+}
 
 
 
 
-  export { useGroup, GroupProvider, sendMassage }
+export { useGroup, GroupProvider, sendMassage }
