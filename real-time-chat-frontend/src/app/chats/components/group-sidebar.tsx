@@ -2,7 +2,7 @@ import { useAuth } from '@/hooks/auth-provider'
 import { useGroup } from '@/hooks/group-provider'
 import { tost } from '@/hooks/tost-provider'
 import { getDataFromFormEvent } from '@/utils/form-utils'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "all-user") => void }) {
   const { groups, setCurentGroup: setCurentGroupIndex, createGroup, curentGroup, allUsers: curentGroupUsers } = useGroup()
@@ -19,6 +19,10 @@ export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "a
       tost.error(e)
     })
   }
+  
+  useEffect(() => {
+    show("chat-bar")
+  }, [curentGroup])
 
   return (
     <div className=" bg-red-400 flex flex-col w-80 pt-4 rounded-r-md relative">

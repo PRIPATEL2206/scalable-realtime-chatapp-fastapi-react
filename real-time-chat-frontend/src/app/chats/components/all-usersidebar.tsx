@@ -1,6 +1,7 @@
 import { useAuth } from '@/hooks/auth-provider'
 import { useGroup } from '@/hooks/group-provider';
 import { tost } from '@/hooks/tost-provider';
+import { Group } from '@/models/group-model';
 import { User } from '@/models/user-model'
 import { streamDataFromReader } from '@/utils/stream-data';
 import React, { useEffect, useState } from 'react'
@@ -8,16 +9,22 @@ import React, { useEffect, useState } from 'react'
 export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDelete?: boolean }) {
     const [userIds, setUserIds] = useState<string[]>([])
     const { user: curentUser } = useAuth();
-    const { addUser,deleteUser, createGroup, fetchUsers, curentGroupUsers,allUsers ,groups} = useGroup();
+    const { addUser, deleteUser, createGroup, fetchUsers, curentGroupUsers, allUsers, groups, setCurentGroup } = useGroup();
 
     const handlePersonalMsg = async (userId: string) => {
-
-        const group = await createGroup({
-            groupName: `${curentUser?.id}:${userId}`,
-            des: "",
-            isIndividual: true
-        });
-        await addUser(userId, group.id)
+        let chatWithUser: Group | undefined = groups.filter(group => group.is_individual_group).find((group) => group.name === userId);
+        if (!chatWithUser) {
+            const group = await createGroup({
+                groupName: `${curentUser?.id}:${userId}`,
+                des: "",
+                isIndividual: true
+            });
+            if (userId!==curentUser?.id) {
+                await addUser(userId, group.id)
+            }
+            chatWithUser = group
+        }
+        setCurentGroup(chatWithUser)
     }
 
 
@@ -27,9 +34,9 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
     }, [])
     useEffect(() => {
 
-        setUserIds(ids=>[])
-        for(const ke in allUsers){
-            setUserIds(ids=>[...ids,ke])
+        setUserIds(ids => [])
+        for (const ke in allUsers) {
+            setUserIds(ids => [...ids, ke])
         }
 
     }, [allUsers])
@@ -42,10 +49,10 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
             }
             <div className={`p-10 ${isForAddDelete ? "" : "my-10"} flex-1`}>
 
-              
+
                 {userIds.map(
-                   (id) => {
-                    const user = allUsers[id];
+                    (id) => {
+                        const user = allUsers[id];
                         let isUserAdded = false;
                         if (isForAddDelete && curentGroupUsers[user.id]) {
                             isUserAdded = true;
@@ -64,7 +71,7 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
                                         </div>
                                     </div>
                                     {isForAddDelete ?
-                                        <div className={`mr-2 ${isUserAdded ? "hover:bg-red-400" : "hover:bg-green-400"} px-2 text-3xl rounded`} onClick={() => isUserAdded?deleteUser(user.id):addUser(user.id)}>{isUserAdded ? "X" : "+"}</div>
+                                        <div className={`mr-2 ${isUserAdded ? "hover:bg-red-400" : "hover:bg-green-400"} px-2 text-3xl rounded`} onClick={() => isUserAdded ? deleteUser(user.id) : addUser(user.id)}>{isUserAdded ? "X" : "+"}</div>
                                         : <div className="mr-2 hover:bg-green-500 px-2 py-3 rounded" onClick={() => handlePersonalMsg(user.id)}>Massage</div>}
                                 </div>
                                 <hr />

@@ -239,6 +239,11 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
     const data = await response.json()
     const newGroup = new Group({ ...data });
+    
+    if (newGroup.is_individual_group) {
+      const users = newGroup.name.split(":");
+      newGroup.name = users[0] === user.id ? users[1] : users[0]
+    }
     setGroups(groups => [newGroup, ...groups])
     return newGroup
   }
