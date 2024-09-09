@@ -9,6 +9,7 @@ class Res_Chat(BaseModel):
     msg:str
     is_conection_req:bool=False
     created_at:datetime
+    is_any_event:bool=False
 
     class Config:
         from_attributes=True

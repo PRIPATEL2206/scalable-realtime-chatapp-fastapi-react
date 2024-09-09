@@ -239,7 +239,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
     const data = await response.json()
     const newGroup = new Group({ ...data });
-    
+
     if (newGroup.is_individual_group) {
       const users = newGroup.name.split(":");
       newGroup.name = users[0] === user.id ? users[1] : users[0]
@@ -303,36 +303,31 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       }
     }
     const data = await response.json()
-    const temp=curentGroupUsers
-      delete temp[userId]
-    setCurentGroupUsers(users =>({...temp}))
+    const temp = curentGroupUsers
+    delete temp[userId]
+    setCurentGroupUsers(users => ({ ...temp }))
     console.log(data)
+  }
+
+  let handleMassage = async (chat: Chat, event: string) => {
+    if (event === "group_user_add") {
+      // TODO : get new group add and it
+    }
+    if (event !== "massage_send") {
+      if (curentGroup?.id === chat.group_id) {
+        setChats(chats => [...chats, chat]);
+      }
+      setGroups(groups => {
+        const index = groups.map(groups => groups.id).indexOf(chat.group_id)
+        return [groups[index], ...groups.slice(0, index), ...groups.slice(index + 1, groups.length)]
+      })
+    }
   }
 
   useEffect(() => {
     fetchGroups();
   }, [user])
 
-  useEffect(() => {
-    if (ws) {
-      ws.onmessage = (e) => {
-        console.log(e.data)
-        const msg = JSON.parse(e.data)
-        if (msg.event !== "unauthorized" && msg.event !== "error") {
-          const chat = new Chat(JSON.parse(msg.data.chat));
-          if (msg.event !== "massage_send") {
-            setChats(chats => [...chats, chat]);
-            setGroups(groups => {
-              const index = groups.map(groups => groups.id).indexOf(chat.group_id)
-              return [groups[index], ...groups.slice(0, index), ...groups.slice(index + 1, groups.length)]
-            })
-          }
-
-        }
-      }
-    }
-
-  }, [ws])
 
   useEffect(() => {
     if (curentGroup) {
@@ -340,6 +335,21 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       fetchChats(curentGroup.id)
     }
   }, [curentGroup])
+
+  useEffect(() => {
+    if (ws) {
+      ws.onmessage = async (e) => {
+        console.log(e.data)
+        const msg = JSON.parse(e.data)
+        if (msg.event !== "unauthorized" && msg.event !== "error") {
+          const chat = new Chat(JSON.parse(msg.data.chat));
+          handleMassage(chat, msg.event)
+        }
+      }
+    }
+
+  }, [ws, curentGroup])
+
 
   return <GroupContext.Provider value={{ groups, chats, setCurentGroup, sendMassage, createGroup, curentGroup, addUser, deleteUser, allUsers, fetchUsers, curentGroupUsers }}>
     {children}

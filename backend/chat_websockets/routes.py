@@ -103,7 +103,7 @@ async def add_in_group(add_in_group:AddDeleteUserGroupReq,user:User=Depends(get_
         chat = Chat(
             sender_id=user.id,
             group_id=add_in_group.group_id,
-            is_conection_req=True,
+            is_any_event=True,
             msg=f"{user.name} added {user_to_add.name}"
             )
         chat.add(db)
@@ -159,7 +159,7 @@ async def delete_from_group(delete_from_group:AddDeleteUserGroupReq,user:User=De
         chat = Chat(
             sender_id=user.id,
             group_id=delete_from_group.group_id,
-            is_conection_req=True,
+            is_any_event=True,
             msg=f"{user.name} removed {user_to_delete.name}"
             )
         chat.add(db)

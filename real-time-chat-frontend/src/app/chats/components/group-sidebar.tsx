@@ -5,7 +5,7 @@ import { getDataFromFormEvent } from '@/utils/form-utils'
 import React, { useEffect, useState } from 'react'
 
 export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "all-user") => void }) {
-  const { groups, setCurentGroup: setCurentGroupIndex, createGroup, curentGroup, allUsers: curentGroupUsers } = useGroup()
+  const { groups, setCurentGroup, createGroup, curentGroup,  allUsers } = useGroup()
   const { logout } = useAuth()
 
   const [showCreateGroup, setShowCreateGroup] = useState(false)
@@ -42,15 +42,17 @@ export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "a
           </form>}
       </div>
       <div className='mt-5  overflow-y-auto flex-1 '>
-        {groups && groups.map(
+        {groups.map(
           (group, i) => {
-            const gName=group.is_individual_group && curentGroupUsers[group.name] ? curentGroupUsers[group.name].name : group.name
+            const gName= (group.is_individual_group && allUsers[group.name]) ? allUsers[group.name].name : group.name
             return <div className="" key={group.id}>
               <div className={`flex gap-3 h-14 items-center p-2 cursor-pointer ${(curentGroup && group.id === curentGroup!.id) ? "bg-red-600" : ""} hover:bg-red-600 rounded transition-all duration-200 ease-in-out `}
                 onClick={() => {
-                  setCurentGroupIndex(group)
+                  setCurentGroup(group)
                   show("chat-bar")
-                  document.getElementById("chat")?.focus()
+                  setTimeout(() => {
+                    document.getElementById("chat")?.focus()
+                  }, 500);
                 }} >
                 <div className="rounded-full bg-green-500 px-4 py-2">{gName.charAt(0).toUpperCase()}</div>
                 <h5 className=''>{(gName).slice(0, 20)}</h5>

@@ -5,13 +5,16 @@ class Chat {
     created_at: string
     sender_id: string
     is_conection_req: boolean
+    is_any_event:boolean
+
     constructor({
         id,
         msg,
         group_id,
         created_at,
         sender_id,
-        is_conection_req = false
+        is_conection_req = false,
+        is_any_event = false
     }: {
         id: string,
         msg: string,
@@ -19,6 +22,7 @@ class Chat {
         created_at: string,
         sender_id: string,
         is_conection_req: boolean
+        is_any_event: boolean
     }
     ) {
         this.id = id;
@@ -27,6 +31,7 @@ class Chat {
         this.created_at = created_at
         this.sender_id = sender_id
         this.is_conection_req = is_conection_req
+        this.is_any_event = is_any_event
     }
 
     toJson = () => ({
@@ -35,7 +40,8 @@ class Chat {
         group_id: this.group_id,
         created_at: this.created_at,
         sender_id: this.sender_id,
-        is_conection_req: this.is_conection_req
+        is_conection_req: this.is_conection_req,
+        is_any_event: this.is_any_event
     })
 }
 

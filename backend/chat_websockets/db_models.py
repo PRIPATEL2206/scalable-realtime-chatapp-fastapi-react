@@ -8,6 +8,7 @@ class Chat(CustomBaseDB,Base):
     sender_id=Column(String(20),ForeignKey("users.id"))
     group_id=Column(String(20),ForeignKey("groups.id"))
     is_conection_req=Column(Boolean,default=False)
+    is_any_event:bool=Column(Boolean,default=False)
     msg=Column(String())
 
 

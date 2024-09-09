@@ -50,9 +50,10 @@ export default function ChatSideBar() {
                 chat => {
                   const isCurentUser = chat.sender_id === user?.id
                   return (
-                    <div key={chat.id} className={`flex  ${isCurentUser ? "justify-end" : ""} `}>
-                      <div className={`w-fit min-w-12 p-2 my-2 rounded ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
-                        {curentGroupUsers && <small>{isCurentUser ? "You" : curentGroupUsers[chat.sender_id]?.name ?? chat.sender_id}</small>}                        <h6>{chat.msg}</h6>
+                    <div key={chat.id} className={`flex  ${chat.is_any_event ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
+                      <div className={`w-fit min-w-12 p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
+                        {!chat.is_any_event && curentGroupUsers && <small>{isCurentUser ? "You" : curentGroupUsers[chat.sender_id]?.name ?? chat.sender_id}</small>}
+                        <h6>{chat.msg}</h6>
                       </div>
                     </div>
                   )

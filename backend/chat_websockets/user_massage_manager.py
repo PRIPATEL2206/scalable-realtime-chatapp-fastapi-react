@@ -44,6 +44,7 @@ class UserSocketManager:
             sender_id=user_id,
             group_id=group.id,
             is_conection_req=True,
+            is_any_event=True,
             msg="connection_event")
         msg=Res_Chat.model_validate(con_req).model_dump()
         for user in group.users:
