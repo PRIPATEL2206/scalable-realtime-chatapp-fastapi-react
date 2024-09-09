@@ -6,56 +6,34 @@ import { streamDataFromReader } from '@/utils/stream-data';
 import React, { useEffect, useState } from 'react'
 
 export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDelete?: boolean }) {
-    const [users, setUsers] = useState<User[]>([])
-    const { user } = useAuth();
-    const { addUser } = useGroup();
+    const [userIds, setUserIds] = useState<string[]>([])
+    const { user: curentUser } = useAuth();
+    const { addUser,deleteUser, createGroup, fetchUsers, curentGroupUsers,allUsers ,groups} = useGroup();
 
+    const handlePersonalMsg = async (userId: string) => {
 
-    const deleteUser = (userId: string) => {
-
+        const group = await createGroup({
+            groupName: `${curentUser?.id}:${userId}`,
+            des: "",
+            isIndividual: true
+        });
+        await addUser(userId, group.id)
     }
 
-    const fetchUsers = async () => {
-
-        try {
-            const response = await fetch("http://127.0.0.1:8000/auth/users", {
-                method: "post",
-                headers: {
-                    accept: "application/json",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "Authorization": `Bearer ${user?.access_token}`
-                },
-            });
-
-            if (response.status !== 200) {
-                const error = await response.json()
-                console.log(error)
-                tost.error(error)
-            }
-            setUsers(u => [])
-            streamDataFromReader(
-                {
-                    reader: response.body!.getReader(),
-                    onData: (data) => {
-                        const user = new User(JSON.parse(data))
-                        setUsers(users => [...users, user])
-                    },
-
-                }
-                ,)
-        }
-        catch (e: any) {
-            console.log(e)
-            tost.error(e)
-        }
-
-    }
 
     useEffect(() => {
-        fetchUsers()
-
+        fetchUsers({})
+        // console.log((allUsers))
     }, [])
-    
+    useEffect(() => {
+
+        setUserIds(ids=>[])
+        for(const ke in allUsers){
+            setUserIds(ids=>[...ids,ke])
+        }
+
+    }, [allUsers])
+
     return (
         <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-scroll '>
             {!isForAddDelete && <div className="sticky w-full top-0 bg-red-400 p-2 min-h-14 rounded flex gap-3 items-center justify-center shadow-lg cursor-pointer" >
@@ -64,8 +42,14 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
             }
             <div className={`p-10 ${isForAddDelete ? "" : "my-10"} flex-1`}>
 
-                {users.map(
-                    user => {
+              
+                {userIds.map(
+                   (id) => {
+                    const user = allUsers[id];
+                        let isUserAdded = false;
+                        if (isForAddDelete && curentGroupUsers[user.id]) {
+                            isUserAdded = true;
+                        }
                         return (
                             <div key={user.id}>
 
@@ -80,14 +64,15 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
                                         </div>
                                     </div>
                                     {isForAddDelete ?
-                                        <div className="mr-2 hover:bg-green-500 px-2 text-3xl rounded" onClick={() => addUser(user.id)}>+</div>
-                                        : <div className="mr-2 hover:bg-green-500 px-2 py-3 rounded">Massage</div>}
+                                        <div className={`mr-2 ${isUserAdded ? "hover:bg-red-400" : "hover:bg-green-400"} px-2 text-3xl rounded`} onClick={() => isUserAdded?deleteUser(user.id):addUser(user.id)}>{isUserAdded ? "X" : "+"}</div>
+                                        : <div className="mr-2 hover:bg-green-500 px-2 py-3 rounded" onClick={() => handlePersonalMsg(user.id)}>Massage</div>}
                                 </div>
                                 <hr />
                             </div>
                         )
                     }
                 )}
+
             </div>
 
 

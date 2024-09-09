@@ -106,7 +106,7 @@ def refresh_token(request:RefreshTokenReqest,db: Session = Depends(get_db)):
         )
 
 
-@router.get('/users')
+@router.post('/users')
 def get_users(user_ids:list[str]=None,user:User=Depends(get_current_user), db:Session=Depends(get_db)):
         return StreamingResponse(
             content=get_genratore(
@@ -116,7 +116,7 @@ def get_users(user_ids:list[str]=None,user:User=Depends(get_current_user), db:Se
                     ) if user_ids 
                     else map(
                          lambda user:Response_User.model_validate(user).model_dump_json(),
-                            db.query(User).filter(User.id != user.id).all()
+                            db.query(User).all()
                     )
                     ),
             media_type="text/event-stream")

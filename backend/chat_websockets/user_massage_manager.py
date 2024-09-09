@@ -111,7 +111,14 @@ class MassageBuilder:
     
     def build_group_add_event(msg:any)->str:
         return MassageBuilder.build(
-            Events.GROUP_ADD,
+            Events.GROUP_USER_ADD,
+            {
+                "chat":msg
+            }
+        )
+    def build_group_delete_event(msg:any)->str:
+        return MassageBuilder.build(
+            Events.GROUP_USER_DELETE,
             {
                 "chat":msg
             }
@@ -126,9 +133,11 @@ class MassageBuilder:
         )
     
     def build_error_event(msg:any)->str:
-        return str({
-            "event":Events.ERROR,
-            "msg":msg
-        })
+        return MassageBuilder.build(
+            Events.ERROR,
+           {
+                "msg":msg
+            }
+        )
     
     
