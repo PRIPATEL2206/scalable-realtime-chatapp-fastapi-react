@@ -35,7 +35,7 @@ export default function ChatSideBar() {
             <div className="rounded-full bg-green-500 px-4 py-2">{(curentGroup.is_individual_group && curentGroupUsers[curentGroup.name] ? curentGroupUsers[curentGroup.name].name : curentGroup.name).charAt(0).toUpperCase()}</div>
             <h5>{curentGroup.is_individual_group && curentGroupUsers[curentGroup.name] ? curentGroupUsers[curentGroup.name].name : curentGroup.name}</h5>
           </div>
-          {!curentGroup.is_individual_group && curentGroup.created_by === user?.id && <div className="px-2  hover:bg-green-500 rounded-lg mr-3 text-3xl " onClick={() => setShowAddUser(pre => !pre)} >{showAddUser ? "X" : "+"}</div>}
+          {!curentGroup.is_individual_group && curentGroup.created_by === user?.id && <div className="px-2  hover:bg-green-500  rounded-lg  mr-3 text-3xl " onClick={() => setShowAddUser(pre => !pre)} >{showAddUser ? "X" : "+"}</div>}
         </>}
       </div>
 
@@ -54,7 +54,7 @@ export default function ChatSideBar() {
                       <div className={`w-fit min-w-12 p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
                         {!chat.isAnyEvent && curentGroupUsers && <small>{isCurentUser ? "You" : curentGroupUsers[chat.senderId]?.name ?? chat.senderId}</small>}
                         <h6>{chat.isConectionReq && chat.conReqSender ? `${chat.conReqSender.name} send request to join` : chat.msg}</h6>
-                        {chat.isConectionReq && chat.conReqSender && curentGroup?.created_by === user?.id && <button className='w-full bg-green-600 hover:bg-green-800' disabled={curentGroupUsers[chat.senderId] !== undefined} onClick={(e) => {
+                        {chat.isConectionReq && chat.conReqSender && curentGroup?.created_by === user?.id && <button className='w-full bg-green-600 hover:bg-green-800 disabled:bg-gray-400' disabled={curentGroupUsers[chat.senderId] !== undefined} onClick={(e) => {
                           addUser(chat.conReqSender!.id, curentGroup?.id)
                         }}>{ curentGroupUsers[chat.senderId] === undefined ?"Add":"Added"}</button>}
                       </div>

@@ -120,6 +120,14 @@ class MassageBuilder:
                 "chat":msg
             }
         )
+    
+    def build_new_group_add_event(msg:any)->str:
+        return MassageBuilder.build(
+            Events.NEW_GROUP_ADD,
+            {
+                "group":msg
+            }
+        )
     def build_group_delete_event(msg:any)->str:
         return MassageBuilder.build(
             Events.GROUP_USER_DELETE,

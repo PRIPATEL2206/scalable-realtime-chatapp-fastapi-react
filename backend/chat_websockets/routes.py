@@ -129,6 +129,7 @@ async def add_in_group(add_in_group:AddDeleteUserGroupReq,user:User=Depends(get_
             )
         chat.add(db)
         chat_res=Res_Chat.model_validate(chat)
+        await userSocketManager.send_personal_msg(user_to_add.id,MassageBuilder.build_new_group_add_event(Res_Group.model_validate(group).model_dump_json()))
         await userSocketManager.broadcast_all_in_group(user,chat.group_id,MassageBuilder.build_group_add_event(chat_res.model_dump_json()))
 
     return {"event":"user added"}
