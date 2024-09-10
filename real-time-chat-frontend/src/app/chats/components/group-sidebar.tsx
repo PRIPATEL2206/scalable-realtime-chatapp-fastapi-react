@@ -4,7 +4,7 @@ import { tost } from '@/hooks/tost-provider'
 import { getDataFromFormEvent } from '@/utils/form-utils'
 import React, { useEffect, useState } from 'react'
 
-export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "all-user") => void }) {
+export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "all-user"|"all-group") => void }) {
   const { groups, setCurentGroup, createGroup, curentGroup,  allUsers } = useGroup()
   const { logout } = useAuth()
 
@@ -67,7 +67,7 @@ export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "a
       <button className='absolute bottom-5 right-1 p-2  bg-gray-500 hover:bg-red-600 text-start rounded' onClick={() => show("all-user")}>
         New Massage
       </button>
-      <button className='absolute bottom-5 left-1 p-2 bg-gray-500  hover:bg-red-600 text-start rounded' onClick={() => show("all-user")}>
+      <button className='absolute bottom-5 left-1 p-2 bg-gray-500  hover:bg-red-600 text-start rounded' onClick={() => show("all-group")}>
         groups
       </button>
     </div>

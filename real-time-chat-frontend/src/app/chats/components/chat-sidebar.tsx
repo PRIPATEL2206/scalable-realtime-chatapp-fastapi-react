@@ -7,7 +7,7 @@ import AllUsersSideBar from './all-usersidebar';
 export default function ChatSideBar() {
   const [showAddUser, setShowAddUser] = useState(false);
 
-  const { chats, sendMassage, curentGroup, allUsers: curentGroupUsers } = useGroup()
+  const { chats, sendMassage, curentGroup, curentGroupUsers, addUser } = useGroup()
   const { user } = useAuth()
 
   const handleSendMassge = (form: React.FormEvent<HTMLFormElement>) => {
@@ -48,12 +48,15 @@ export default function ChatSideBar() {
 
               {chats.map(
                 chat => {
-                  const isCurentUser = chat.sender_id === user?.id
+                  const isCurentUser = chat.senderId === user?.id
                   return (
-                    <div key={chat.id} className={`flex  ${chat.is_any_event ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
+                    <div key={chat.id} className={`flex  ${chat.isAnyEvent ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
                       <div className={`w-fit min-w-12 p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
-                        {!chat.is_any_event && curentGroupUsers && <small>{isCurentUser ? "You" : curentGroupUsers[chat.sender_id]?.name ?? chat.sender_id}</small>}
-                        <h6>{chat.msg}</h6>
+                        {!chat.isAnyEvent && curentGroupUsers && <small>{isCurentUser ? "You" : curentGroupUsers[chat.senderId]?.name ?? chat.senderId}</small>}
+                        <h6>{chat.isConectionReq && chat.conReqSender ? `${chat.conReqSender.name} send request to join` : chat.msg}</h6>
+                        {chat.isConectionReq && chat.conReqSender && curentGroup?.created_by === user?.id && <button className='w-full bg-green-600 hover:bg-green-800' disabled={curentGroupUsers[chat.senderId] !== undefined} onClick={(e) => {
+                          addUser(chat.conReqSender!.id, curentGroup?.id)
+                        }}>{ curentGroupUsers[chat.senderId] === undefined ?"Add":"Added"}</button>}
                       </div>
                     </div>
                   )

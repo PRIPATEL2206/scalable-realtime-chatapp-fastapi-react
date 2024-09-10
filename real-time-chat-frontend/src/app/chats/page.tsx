@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import GroupSideBar from './components/group-sidebar'
 import ChatSideBar from './components/chat-sidebar'
 import AllUsersSideBar from './components/all-usersidebar'
+import AllGroupSidebar from './components/all-groupsidebar'
 
 
 const Chats = () => {
@@ -12,17 +13,19 @@ const Chats = () => {
   let [ws,setWS]=useState<WebSocket>() ;
 
   const [showAllUser, setShowAllUser] = useState(false)
+  const [showAllGroups, setShowAllGroups] = useState(false)
   const [showChatBar, setShowChatBar] = useState(true)
 
   const sideBars={
     "chat-bar":setShowChatBar,
-    "all-user":setShowAllUser
+    "all-user":setShowAllUser,
+    "all-group":setShowAllGroups,
   }
 
 
-  const show=(sidebar:"chat-bar"|"all-user")=>{
+  const show=(sidebar:"chat-bar"|"all-user"|"all-group")=>{
     for (const sidebar in sideBars) {
-      sideBars[sidebar as "chat-bar"|"all-user"](false)
+      sideBars[sidebar as "chat-bar"|"all-user"|"all-group"](false)
     }
     sideBars[sidebar](true);
   }
@@ -57,6 +60,7 @@ useEffect(()=>{
         <GroupSideBar   show={show}/>
         {showChatBar && <ChatSideBar/>}
         {showAllUser && <AllUsersSideBar/>}
+        {showAllGroups && <AllGroupSidebar/>}
 
 
         {/* <h1>user name {user?.name}</h1>

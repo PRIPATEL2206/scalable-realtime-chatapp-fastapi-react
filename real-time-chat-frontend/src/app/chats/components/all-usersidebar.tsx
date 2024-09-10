@@ -44,7 +44,7 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
     return (
         <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-scroll '>
             {!isForAddDelete && <div className="sticky w-full top-0 bg-red-400 p-2 min-h-14 rounded flex gap-3 items-center justify-center shadow-lg cursor-pointer" >
-                <h5>All Users</h5>
+                <h5>Users</h5>
             </div>
             }
             <div className={`p-10 ${isForAddDelete ? "" : "my-10"} flex-1`}>

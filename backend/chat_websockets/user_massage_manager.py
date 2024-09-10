@@ -2,8 +2,9 @@ from fastapi  import WebSocket
 from chat_websockets.db_models import Group,Chat
 from chat_websockets.response_models import Res_Chat
 from db.base_db import get_db
-from auth.db_models import User
 from chat_websockets.constants import Events
+from auth.response_models import Response_User
+from auth.db_models import User
 
 import json
 
@@ -38,18 +39,20 @@ class UserSocketManager:
         await self.send_personal_msg(sender.id,MassageBuilder.build_unauthorized_event(f"user not have access to send massage in this group"))
         return False
     
-    async def send_group_connect_req(self,user_id:str,group:Group):
+    async def send_group_connect_req(self,user_id:str,user:User,group:Group):
         db = next(get_db())
         con_req = Chat(
             sender_id=user_id,
             group_id=group.id,
             is_conection_req=True,
             is_any_event=True,
-            msg="connection_event")
-        msg=Res_Chat.model_validate(con_req).model_dump()
+            msg=json.dumps(Response_User.model_validate(user).model_dump_json())
+            )
+        con_req.add(db)
+        msg=Res_Chat.model_validate(con_req)
         for user in group.users:
-            await self.send_personal_msg(user.id,MassageBuilder.build_group_connect_req_event(msg))
-        return msg
+            await self.send_personal_msg(user.id,MassageBuilder.build_group_connect_req_event(msg.model_dump_json()))
+        return msg.model_dump_json()
 
 class UserSocketHelper:
     def __init__(self,userScocketManager:UserSocketManager,user:User,websocket:WebSocket) -> None:

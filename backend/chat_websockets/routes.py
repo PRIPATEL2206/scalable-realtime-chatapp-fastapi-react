@@ -23,6 +23,7 @@ router = APIRouter(
 
 userSocketManager = UserSocketManager()
 
+# groups
 @router.post("/group")
 async def create_group(req_group:Req_Group,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
     if req_group.is_individual_group:
@@ -44,8 +45,28 @@ async def create_group(req_group:Req_Group,user:User=Depends(get_current_user),d
     group.add(db)
     return Res_Group.model_validate(group)
 
+@router.get("/get-my-groups")
+async def get_users_groups(user:User=Depends(get_current_user)):
+    return StreamingResponse(
+        content=get_genratore(map(
+                lambda group:Res_Group.model_validate(group).model_dump_json(),
+               sorted(user.groups,key=lambda group:group.last_updated,reverse=True) 
+                )),
+        media_type="text/event-stream")
+
+@router.get("/get-all-groups")
+async def get_all_groups(db:Session=Depends(get_db),user:User=Depends(get_current_user)):
+    return StreamingResponse(
+        content=get_genratore(map(
+                lambda group:Res_Group.model_validate(group).model_dump_json(),
+               sorted(db.query(Group).filter(Group.is_individual_group!=True).all(),key=lambda group:group.name,reverse=True) 
+                )),
+        media_type="text/event-stream")
+
+
+# users
 @router.post("/add-group-req")
-async def send_group_add_request(group_id:str,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
+async def send_group_add_request(group_id:str = Body(),user:User=Depends(get_current_user),db:Session=Depends(get_db)):
     group = db.query(Group).filter(Group.id==group_id).first()
     if not group:
         raise HTTPException(
@@ -58,7 +79,7 @@ async def send_group_add_request(group_id:str,user:User=Depends(get_current_user
             detail=f"user Already in Group"
         )
 
-    return await userSocketManager.send_group_connect_req(user.id,group)
+    return await userSocketManager.send_group_connect_req(user.id,user,group)
 
 @router.post("/add-in-group")
 async def add_in_group(add_in_group:AddDeleteUserGroupReq,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
@@ -168,27 +189,6 @@ async def delete_from_group(delete_from_group:AddDeleteUserGroupReq,user:User=De
 
     return {"event":"user deleted"}
 
-
-
-@router.get("/get-my-groups")
-async def get_users_groups(user:User=Depends(get_current_user)):
-    return StreamingResponse(
-        content=get_genratore(map(
-                lambda group:Res_Group.model_validate(group).model_dump_json(),
-               sorted(user.groups,key=lambda group:group.last_updated,reverse=True) 
-                )),
-        media_type="text/event-stream")
-
-@router.get("/get-all-groups")
-async def get_all_groups(db:Session=Depends(get_db),user:User=Depends(get_current_user)):
-    return StreamingResponse(
-        content=get_genratore(map(
-                lambda group:Res_Group.model_validate(group).model_dump_json(),
-               sorted(db.query(Group).filter(Group.is_individual_group!=True).all(),key=lambda group:group.name,reverse=True) 
-                )),
-        media_type="text/event-stream")
-
-
 @router.get('/get-group-user')
 def get_users(group_id:str,user:User=Depends(get_current_user), db:Session=Depends(get_db)):
         group:Group = db.query(Group).get(group_id)
@@ -205,6 +205,7 @@ def get_users(group_id:str,user:User=Depends(get_current_user), db:Session=Depen
             media_type="text/event-stream")
     
 
+# chats
 @router.get("/get-chats")
 async def get_chats_of_group(group_id:str,db:Session=Depends(get_db),user:User=Depends(get_current_user)):
     group=db.query(Group).filter(Group.id==group_id).first()
