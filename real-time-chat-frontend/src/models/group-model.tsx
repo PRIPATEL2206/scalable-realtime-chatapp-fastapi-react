@@ -1,11 +1,11 @@
 class Group {
     id: string
     name: string
-    last_updated: string
-    created_at: string
-    created_by: string
+    lastUpdated: Date
+    createdAt: Date
+    createdBy: string
     des: string
-    is_individual_group: boolean
+    isIndividualGroup: boolean
     constructor({
         id,
         name,
@@ -26,21 +26,21 @@ class Group {
     ) {
         this.id = id
         this.name = name
-        this.last_updated = last_updated
-        this.created_at = created_at
-        this.created_by = created_by
+        this.lastUpdated = new Date(last_updated)
+        this.createdAt = new Date(created_at)
+        this.createdBy = created_by
         this.des = des
-        this.is_individual_group = is_individual_group
+        this.isIndividualGroup = is_individual_group
     }
 
     toJson = () => ({
         id: this.id,
         name: this.name,
-        last_updated: this.last_updated,
-        created_at: this.created_at,
-        created_by: this.created_by,
+        last_updated: this.lastUpdated,
+        created_at: this.createdAt.toString(),
+        created_by: this.createdBy.toString(),
         des: this.des,
-        is_individual_group: this.is_individual_group
+        is_individual_group: this.isIndividualGroup
     })
 }
 

@@ -9,7 +9,7 @@ export default function GroupUsersSideBar() {
     const { createGroup, groups, addUser, setCurentGroup, curentGroupUsers ,curentGroup} = useGroup();
 
     const handlePersonalMsg = async (userId: string) => {
-        let chatWithUser: Group | undefined = groups.filter(group => group.is_individual_group).find((group) => group.name === userId);
+        let chatWithUser: Group | undefined = groups.filter(group => group.isIndividualGroup).find((group) => group.name === userId);
         if (!chatWithUser) {
             const group = await createGroup({
                 groupName: `${curentUser?.id}:${userId}`,
@@ -42,7 +42,7 @@ export default function GroupUsersSideBar() {
                 {userIds.map(
                     (id) => {
                         const user = curentGroupUsers[id];
-                       const isAdmin=curentGroup?.created_by===user.id;
+                       const isAdmin=curentGroup?.createdBy===user.id;
                         return (
                             <div key={user.id}>
 

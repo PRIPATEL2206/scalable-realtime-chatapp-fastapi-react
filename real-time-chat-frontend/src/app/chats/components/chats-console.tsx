@@ -28,11 +28,20 @@ export default function ChatsConsole() {
                 return (
                   <div key={chat.id} className={`flex  ${chat.isAnyEvent ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
                     <div className={`w-fit min-w-12 p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
-                      {!chat.isAnyEvent && curentGroupUsers && <small>{isCurentUser ? "You" : curentGroupUsers[chat.senderId]?.name ?? chat.senderId}</small>}
+                      {!chat.isAnyEvent &&
+                       curentGroupUsers && 
+                       <small>{isCurentUser ? "You" : curentGroupUsers[chat.senderId]?.name ?? chat.senderId}</small>}
+                      
                       <h6>{chat.isConectionReq && chat.conReqSender ? `${chat.conReqSender.name} send request to join` : chat.msg}</h6>
-                      {chat.isConectionReq && chat.conReqSender && curentGroup?.created_by === user?.id && <button className='w-full bg-green-600 hover:bg-green-800 disabled:bg-gray-400' disabled={curentGroupUsers[chat.senderId] !== undefined} onClick={(e) => {
+
+                      {chat.isConectionReq && 
+                      chat.conReqSender && 
+                      curentGroup?.createdBy === user?.id && 
+                      <button className='w-full bg-green-600 hover:bg-green-800 disabled:bg-gray-400' disabled={curentGroupUsers[chat.senderId] !== undefined} onClick={(e) => {
                         addUser(chat.conReqSender!.id, curentGroup?.id)
                       }}>{curentGroupUsers[chat.senderId] === undefined ? "Add" : "Added"}</button>}
+                      <h6 className='text-[10px] float-end '>{`${chat.createdAt.toLocaleTimeString()}`}</h6>
+
                     </div>
                   </div>
                 )

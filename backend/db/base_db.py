@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column,DATETIME,String
 from sqlalchemy.orm import Session
 from uuid import uuid4
-import datetime 
+from datetime import datetime 
 
 
 
@@ -35,13 +35,13 @@ class CustomBaseDB():
 
     def add(self,db:Session):
         self.id = str(uuid4())
-        self.created_at=datetime.datetime.now(datetime.UTC)
-        self.last_updated=datetime.datetime.now(datetime.UTC)
+        self.created_at=datetime.now()
+        self.last_updated=datetime.now()
         db.add(self)
         db.commit()
         db.refresh(self)
         
     def update(self,db:Session):
-        self.last_updated=datetime.datetime.now(datetime.UTC)
+        self.last_updated=datetime.now()
         db.commit()
 

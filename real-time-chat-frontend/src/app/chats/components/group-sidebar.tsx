@@ -44,7 +44,7 @@ export default function GroupSideBar({ show }: { show: (sidebar: "chat-bar" | "a
       <div className='mt-5  overflow-y-auto flex-1 '>
         {groups.map(
           (group, i) => {
-            const gName= (group.is_individual_group && allUsers[group.name]) ? allUsers[group.name].name : group.name
+            const gName= (group.isIndividualGroup && allUsers[group.name]) ? allUsers[group.name].name : group.name
             return <div className="" key={group.id}>
               <div className={`flex gap-3 h-14 items-center p-2 cursor-pointer ${(curentGroup && group.id === curentGroup!.id) ? "bg-red-600" : ""} hover:bg-red-600 rounded transition-all duration-200 ease-in-out `}
                 onClick={() => {

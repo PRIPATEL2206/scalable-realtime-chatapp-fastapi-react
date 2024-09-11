@@ -4,7 +4,7 @@ class Chat {
     id: string
     msg: string
     groupId: string
-    createdAt: string
+    createdAt: Date
     senderId: string
     isConectionReq: boolean
     isAnyEvent: boolean
@@ -34,7 +34,7 @@ class Chat {
         this.id = id;
         this.msg = msg;
         this.groupId = group_id
-        this.createdAt = created_at
+        this.createdAt = new Date(created_at)
         this.senderId = sender_id
         this.isConectionReq = is_conection_req
         this.isAnyEvent = is_any_event
@@ -45,7 +45,7 @@ class Chat {
         id: this.id,
         msg: this.msg,
         group_id: this.groupId,
-        created_at: this.createdAt,
+        created_at: this.createdAt.toString(),
         sender_id: this.senderId,
         is_conection_req: this.isConectionReq,
         is_any_event: this.isAnyEvent,

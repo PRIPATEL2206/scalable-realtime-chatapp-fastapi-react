@@ -10,7 +10,7 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
     const { addUser, deleteUser, createGroup, fetchUsers, curentGroupUsers, allUsers, groups, setCurentGroup } = useGroup();
 
     const handlePersonalMsg = async (userId: string) => {
-        let chatWithUser: Group | undefined = groups.filter(group => group.is_individual_group).find((group) => group.name === userId);
+        let chatWithUser: Group | undefined = groups.filter(group => group.isIndividualGroup).find((group) => group.name === userId);
         if (!chatWithUser) {
             const group = await createGroup({
                 groupName: `${curentUser?.id}:${userId}`,

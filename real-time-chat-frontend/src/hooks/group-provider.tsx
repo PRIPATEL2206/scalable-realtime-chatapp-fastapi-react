@@ -76,7 +76,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
           reader: response.body!.getReader(),
           onData: (data) => {
             const group = new Group(JSON.parse(data))
-            if (group.is_individual_group) {
+            if (group.isIndividualGroup) {
               const users = group.name.split(":");
               group.name = users[0] === user.id ? users[1] : users[0]
               inividualChatsUsers.push(group.name)
@@ -156,7 +156,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     const data = await response.json()
     const newGroup = new Group({ ...data });
 
-    if (newGroup.is_individual_group) {
+    if (newGroup.isIndividualGroup) {
       const users = newGroup.name.split(":");
       newGroup.name = users[0] === user.id ? users[1] : users[0]
     }
