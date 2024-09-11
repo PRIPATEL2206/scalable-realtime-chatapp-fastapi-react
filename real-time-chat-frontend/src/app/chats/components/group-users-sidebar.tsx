@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 export default function GroupUsersSideBar() {
     const { user: curentUser } = useAuth();
     const [userIds, setUserIds] = useState<string[]>([]);
-    const { createGroup, groups, addUser, setCurentGroup, curentGroupUsers } = useGroup();
+    const { createGroup, groups, addUser, setCurentGroup, curentGroupUsers ,curentGroup} = useGroup();
 
     const handlePersonalMsg = async (userId: string) => {
         let chatWithUser: Group | undefined = groups.filter(group => group.is_individual_group).find((group) => group.name === userId);
@@ -42,6 +42,7 @@ export default function GroupUsersSideBar() {
                 {userIds.map(
                     (id) => {
                         const user = curentGroupUsers[id];
+                       const isAdmin=curentGroup?.created_by===user.id;
                         return (
                             <div key={user.id}>
 
@@ -51,7 +52,7 @@ export default function GroupUsersSideBar() {
                                     <div className="flex gap-3 items-center p-2">
                                         <div className="rounded-full bg-green-500 px-4 py-2 font-bold">{user.name.charAt(0).toUpperCase()}</div>
                                         <div className="">
-                                            <h4 className='text-lg'>{user.name}</h4>
+                                            <h4 className='text-lg'>{user.name+isAdmin?" (Admin)":""}</h4>
                                             <i className='text-sm'>{user.email}</i>
                                         </div>
                                     </div>

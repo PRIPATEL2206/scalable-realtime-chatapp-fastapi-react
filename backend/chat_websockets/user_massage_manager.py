@@ -128,11 +128,18 @@ class MassageBuilder:
                 "group":msg
             }
         )
-    def build_group_delete_event(msg:any)->str:
+    def build_group_user_delete_event(msg:any)->str:
         return MassageBuilder.build(
             Events.GROUP_USER_DELETE,
             {
                 "chat":msg
+            }
+        )
+    def build_group_remove_event(msg:any)->str:
+        return MassageBuilder.build(
+            Events.GROUP_REMOVE,
+            {
+                "group":msg
             }
         )
     

@@ -1,13 +1,11 @@
 import { useAuth } from '@/hooks/auth-provider'
 import { useGroup } from '@/hooks/group-provider';
-import { tost } from '@/hooks/tost-provider';
 import { Group } from '@/models/group-model';
-import { User } from '@/models/user-model'
-import { streamDataFromReader } from '@/utils/stream-data';
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 
 export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDelete?: boolean }) {
     const [userIds, setUserIds] = useState<string[]>([])
+    const [search, setSearch] = useState("");
     const { user: curentUser } = useAuth();
     const { addUser, deleteUser, createGroup, fetchUsers, curentGroupUsers, allUsers, groups, setCurentGroup } = useGroup();
 
@@ -19,12 +17,16 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
                 des: "",
                 isIndividual: true
             });
-            if (userId!==curentUser?.id) {
+            if (userId !== curentUser?.id) {
                 await addUser(userId, group.id)
             }
             chatWithUser = group
         }
         setCurentGroup(chatWithUser)
+    }
+
+    const handleSearchChange=(e:ChangeEvent<HTMLInputElement>)=>{
+        setSearch(e.target.value)
     }
 
 
@@ -42,14 +44,16 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
     }, [allUsers])
 
     return (
-        <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-auto '>
+        <div id='chat-sidebar' className='relative flex-1  bg-green-400 rounded flex flex-col overflow-y-auto '>
             {!isForAddDelete && <div className="sticky w-full top-0 bg-red-400 p-2 min-h-14 rounded flex gap-3 items-center justify-center shadow-lg cursor-pointer" >
                 <h5>Users</h5>
             </div>
             }
-            <div className={`p-10 ${isForAddDelete ? "" : "my-10"} flex-1`}>
 
-
+            <div className={`p-10 flex-1 flex flex-col`}>
+                    <div className="rounded-lg p-3 w-1/3 self-end  bg-white mb-3">
+                        <input type="text" className='w-1/3 outline-none text-black' placeholder='search' onChange={handleSearchChange} />
+                    </div>
                 {userIds.map(
                     (id) => {
                         const user = allUsers[id];
@@ -58,7 +62,7 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
                             isUserAdded = true;
                         }
                         return (
-                            <div key={user.id}>
+                            (user.name.includes(search) || user.email.includes(search)) && !(isForAddDelete && id === curentUser?.id) && <div key={user.id}>
 
                                 <div className={`flex gap-3 justify-between items-center p-2 cursor-pointer hover:bg-red-600 rounded transition-all duration-200 ease-in-out `}
                                     onClick={() => {

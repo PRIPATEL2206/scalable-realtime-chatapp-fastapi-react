@@ -137,22 +137,26 @@ async def add_in_group(add_in_group:AddDeleteUserGroupReq,user:User=Depends(get_
 @router.post("/delete-from-group")
 async def delete_from_group(delete_from_group:AddDeleteUserGroupReq,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
     group:Group = db.query(Group).get(delete_from_group.group_id)
+
+    # if group not exist
     if not group:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="group not found"
         )
-    if group.created_by != user.id:
+    # if user is not admin and not leaveing from group
+    if group.created_by != user.id and delete_from_group.user_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="only admin can delete users"
         )
+    # if admin in deleteing
     if group.created_by == delete_from_group.user_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="admin can't delete from group"
         )
-    
+    # if it is individual group
     if group.is_individual_group :
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -160,34 +164,33 @@ async def delete_from_group(delete_from_group:AddDeleteUserGroupReq,user:User=De
         )
 
     user_to_delete:User = db.query(User).get(delete_from_group.user_id)
-    
-
+    # user not exist
     if not user_to_delete:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"user to delete not found"
         )
-    
+    # user not in group
     if not group.has_user(user_to_delete.id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"user not in group in group"
         )
     
+    chat = Chat(
+        sender_id=user.id,
+        group_id=delete_from_group.group_id,
+        is_any_event=True,
+        msg=f"{user.name} leaved group" if user.id == user_to_delete.id  else f"{user.name} removed {user_to_delete.name}"
+        )
+    chat.add(db)
+    chat_res=Res_Chat.model_validate(chat)
+    await userSocketManager.broadcast_all_in_group(user,chat.group_id,MassageBuilder.build_group_user_delete_event(chat_res.model_dump_json()))
+    
     group.users.remove(user_to_delete)
     group.update(db)
-    if not group.is_individual_group:
-
-        chat = Chat(
-            sender_id=user.id,
-            group_id=delete_from_group.group_id,
-            is_any_event=True,
-            msg=f"{user.name} removed {user_to_delete.name}"
-            )
-        chat.add(db)
-        chat_res=Res_Chat.model_validate(chat)
-        await userSocketManager.broadcast_all_in_group(user,chat.group_id,MassageBuilder.build_group_add_event(chat_res.model_dump_json()))
-
+    
+    await userSocketManager.send_personal_msg(user_to_delete.id,MassageBuilder.build_group_remove_event(Res_Group.model_validate(group).model_dump_json()))
     return {"event":"user deleted"}
 
 @router.get('/get-group-user')
