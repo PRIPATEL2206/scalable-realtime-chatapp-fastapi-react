@@ -1,81 +1,57 @@
 import { useAuth } from '@/hooks/auth-provider'
 import { sendMassage, useGroup } from '@/hooks/group-provider'
 import { getDataFromFormEvent } from '@/utils/form-utils'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 import AllUsersSideBar from './all-usersidebar';
+import GroupUsersSideBar from './group-users-sidebar';
+import ChatsConsole from './chats-console';
 
 export default function ChatSideBar() {
-  const [showAddUser, setShowAddUser] = useState(false);
+  const [show, setShow] = useState<"chat" | "add-user" | 'group-user'>("chat");
+  const [component, setComponent] = useState<ReactNode>();
 
-  const { chats, sendMassage, curentGroup, curentGroupUsers, addUser } = useGroup()
+  const { curentGroup, curentGroupUsers } = useGroup()
   const { user } = useAuth()
 
-  const handleSendMassge = (form: React.FormEvent<HTMLFormElement>) => {
-    form.preventDefault()
-    const { chat } = getDataFromFormEvent(form);
-    sendMassage(chat);
-    (document.getElementById("chat")! as HTMLInputElement).value = ""
-  }
-
   useEffect(() => {
-    setShowAddUser(false)
+    setShow("chat")
   }, [curentGroup])
 
-  useEffect(() => {
-    const chatSideBar = document.getElementById('all-chats');
-    chatSideBar?.scrollTo(0, chatSideBar.scrollHeight)
-  }, [chats])
 
+
+  useEffect(() => {
+    switch (show) {
+      case 'add-user':
+        setComponent(<AllUsersSideBar isForAddDelete={true} />)
+        break;
+      case 'group-user':
+        setComponent(<GroupUsersSideBar />)
+        break;
+
+      default:
+        setComponent(<ChatsConsole />)
+        break;
+    }
+  }, [show])
 
   return (
     <div id='chat-sidebar' className='relative flex-1 bg-green-400 rounded flex flex-col'>
       <div className="sticky w-full bg-red-400 p-2 min-h-14 rounded flex gap-3 items-center justify-between shadow-lg cursor-pointer" >
         {curentGroup && <>
-          <div className="flex gap-3 items-center ">
+          <div className="flex gap-3 items-center " onClick={()=>setShow("group-user")}>
             <div className="rounded-full bg-green-500 px-4 py-2">{(curentGroup.is_individual_group && curentGroupUsers[curentGroup.name] ? curentGroupUsers[curentGroup.name].name : curentGroup.name).charAt(0).toUpperCase()}</div>
             <h5>{curentGroup.is_individual_group && curentGroupUsers[curentGroup.name] ? curentGroupUsers[curentGroup.name].name : curentGroup.name}</h5>
           </div>
-          {!curentGroup.is_individual_group && curentGroup.created_by === user?.id && <div className="px-2  hover:bg-green-500  rounded-lg  mr-3 text-3xl " onClick={() => setShowAddUser(pre => !pre)} >{showAddUser ? "X" : "+"}</div>}
+          {show ==="chat" &&!curentGroup.is_individual_group && curentGroup.created_by === user?.id && <div className="px-2  hover:bg-green-500  rounded-lg  mr-3 text-3xl " onClick={() => setShow("add-user")} >+</div>}
+          {show!=="chat" && <div className="px-2  hover:bg-green-500  rounded-lg  mr-3 text-3xl " onClick={() => setShow("chat")} >X</div>}
         </>}
       </div>
-
-      {
-        showAddUser ?
-          <AllUsersSideBar isForAddDelete={true} /> :
-          <>
-            <div id="all-chats" className="px-10 flex-1 h-full overflow-auto">
-
-
-              {chats.map(
-                chat => {
-                  const isCurentUser = chat.senderId === user?.id
-                  return (
-                    <div key={chat.id} className={`flex  ${chat.isAnyEvent ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
-                      <div className={`w-fit min-w-12 p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-700`}>
-                        {!chat.isAnyEvent && curentGroupUsers && <small>{isCurentUser ? "You" : curentGroupUsers[chat.senderId]?.name ?? chat.senderId}</small>}
-                        <h6>{chat.isConectionReq && chat.conReqSender ? `${chat.conReqSender.name} send request to join` : chat.msg}</h6>
-                        {chat.isConectionReq && chat.conReqSender && curentGroup?.created_by === user?.id && <button className='w-full bg-green-600 hover:bg-green-800 disabled:bg-gray-400' disabled={curentGroupUsers[chat.senderId] !== undefined} onClick={(e) => {
-                          addUser(chat.conReqSender!.id, curentGroup?.id)
-                        }}>{ curentGroupUsers[chat.senderId] === undefined ?"Add":"Added"}</button>}
-                      </div>
-                    </div>
-                  )
-                }
-              )}
-
-            </div>
-            {curentGroup && <div className=" static bottom-0  h-14 pb-3 rounded w-full bg-green-400 flex-initial">
-              <form className="mb-2 h-full w-full flex px-5 gap-4" onSubmit={handleSendMassge}>
-                <input id='chat' type="text" name="chat" className='rounded-2xl outline-none flex-grow p-5 text-black' />
-                <button className='bg-black rounded-full p-2'>send</button>
-              </form>
-            </div>}
-          </>
-
-      }
-
-
+      {component}
 
     </div>
   )
+}
+
+const chats = () => {
+
 }

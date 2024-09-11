@@ -22,7 +22,7 @@ export default function AllGroupSidebar() {
     
 
     return (
-        <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-scroll '>
+        <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-auto '>
              <div className="sticky w-full top-0 bg-red-400 p-2 min-h-14 rounded flex gap-3 items-center justify-center shadow-lg cursor-pointer" >
                 <h5>Groups</h5>
             </div>
