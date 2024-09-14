@@ -1,10 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
 import './index.css'
+import RouterComponent from './routes-utils/router-conmonent.tsx'
+import { AuthProvider } from './hooks/auth-provider.tsx'
+import { TostProvider } from './hooks/tost-provider.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <TostProvider>
+      <AuthProvider>
+        <RouterComponent />
+      </AuthProvider>
+    </TostProvider>
   </StrictMode>,
 )
