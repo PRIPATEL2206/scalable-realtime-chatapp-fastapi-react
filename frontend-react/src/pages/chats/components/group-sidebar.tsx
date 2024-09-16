@@ -40,7 +40,7 @@ export default function GroupSideBar() {
             <button className='hover:bg-red-600 rounded py-2'>create</button>
           </form>}
       </div>
-      <div className='mt-5  overflow-y-auto flex-1 '>
+      <div className='mt-5  mb-16 overflow-y-auto flex-1 no-scrollbar'>
         {groups.map(
           (group) => {
             const gName = (group.isIndividualGroup && allUsers[group.name]) ? allUsers[group.name].name : group.name

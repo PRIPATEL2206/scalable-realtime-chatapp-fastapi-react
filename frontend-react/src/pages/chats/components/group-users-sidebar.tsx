@@ -34,7 +34,7 @@ export default function GroupUsersSideBar() {
     }, [curentGroupUsers])
 
     return (
-        <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-auto '>
+        <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-auto no-scrollbar'>
 
             <div className="p-10 flex-1">
 
