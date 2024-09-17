@@ -3,6 +3,7 @@ import { User } from '../models/user-model';
 import { useNavigate } from 'react-router-dom';
 import CustomError from '../models/error-model';
 import { tost } from './tost-provider';
+import {  API_ROUTES } from '../constnts/api-routs';
 
 interface AuthContextInterface {
     user: User | null
@@ -80,7 +81,7 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     }, [user])
 
     const login = async ({ email, password }: { email: string, password: string }) => {
-        const response = await fetch("http://127.0.0.1:8000/auth/login",
+        const response = await fetch(API_ROUTES.LOGIN ,
             {
                 method: "post",
                 headers: {
@@ -106,7 +107,7 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     }
 
     const register = async ({ name, email, password }: { name: string, email: string, password: string }) => {
-        const response = await fetch("http://127.0.0.1:8000/auth/register",
+        const response = await fetch(API_ROUTES.REGISTER,
             {
                 method: "post",
                 headers: {

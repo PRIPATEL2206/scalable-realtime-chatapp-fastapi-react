@@ -5,6 +5,7 @@ import { User } from '../models/user-model';
 import { streamDataFromReader } from '../utils/stream-data';
 import { tost } from './tost-provider';
 import CustomError from '../models/error-model';
+import { API_ROUTES } from '../constnts/api-routs';
 
 interface GroupContextInterface {
   groups: Group[]
@@ -56,7 +57,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   const fetchGroups = async () => {
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/chats/get-my-groups", {
+      const response = await fetch(API_ROUTES.GET_MY_GROUP, {
         method: "get",
         headers: {
           accept: "application/json",
@@ -103,7 +104,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   const fetchAllGroups = async ({ onGroup, onStart }: { onGroup: (group: Group) => void, onStart?: () => void }) => {
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/chats/get-all-groups", {
+      const response = await fetch(API_ROUTES.GET_ALl_GROUP, {
         method: "get",
         headers: {
           accept: "application/json",
@@ -144,7 +145,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   }
 
   const createGroup = async ({ groupName, des, isIndividual = false }: { groupName: string, des: string, isIndividual?: boolean }) => {
-    const response = await fetch("http://127.0.0.1:8000/chats/group", {
+    const response = await fetch(API_ROUTES.CREATE_GROUP, {
       method: "post",
       headers: {
         accept: "application/json",
@@ -211,7 +212,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   const fetchChats = async (groupId: string) => {
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/chats/get-chats?group_id=${groupId}`, {
+      const response = await fetch(API_ROUTES.GET_CHATS(groupId), {
         method: "get",
         headers: {
           accept: "application/json",
@@ -256,7 +257,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   const fetchUsers = async ({ onUser, onDataStart, uIds }: { onUser?: (user: User) => void, onDataStart?: () => void, uIds?: string[] }) => {
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/auth/users", {
+      const response = await fetch(API_ROUTES.GET_USERS, {
         method: "post",
         headers: {
           accept: "application/json",
@@ -302,7 +303,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   const fetchUsersOfGroup = async (groupId: string) => {
 
     try {
-      const response = await fetch(`http://localhost:8000/chats/get-group-user?group_id=${groupId}`, {
+      const response = await fetch(API_ROUTES.GET_GROUP_USERS(groupId), {
         method: "get",
         headers: {
           accept: "application/json",
@@ -348,7 +349,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     if (!groupID) {
       groupID = curentGroup!.id
     }
-    const response = await fetch("http://127.0.0.1:8000/chats/add-in-group", {
+    const response = await fetch(API_ROUTES.GROUP_ADD_USER, {
       method: "post",
       headers: {
         accept: "application/json",
@@ -380,7 +381,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       }))
       return
     }
-    const response = await fetch("http://127.0.0.1:8000/chats/add-group-req", {
+    const response = await fetch(API_ROUTES.GROUP_ADD_REQ, {
       method: "post",
       headers: {
         accept: "application/json",
@@ -408,7 +409,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     if (!groupID) {
       groupID = curentGroup!.id
     }
-    const response = await fetch("http://127.0.0.1:8000/chats/delete-from-group", {
+    const response = await fetch(API_ROUTES.GROUP_DELETE_USER, {
       method: "post",
       headers: {
         accept: "application/json",
