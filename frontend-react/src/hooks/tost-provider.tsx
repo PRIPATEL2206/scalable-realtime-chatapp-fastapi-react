@@ -36,13 +36,13 @@ const TostProvider: React.FC<TostPropsInterface> = ({ children }) => {
 
     return <TostContext.Provider value={{}}>
         {msgs.length > 0 &&
-            <div style={{ position: "absolute", top: "10px", right: "10px" }} className="absolute top-1 right-1">
+            <div     className="absolute top-1 right-1 z-50"  >
                 {msgs.map((msg, i) => {
 
                     return <div key={i}
-                        className={`${bgColors[msg.bgColor]}  p-2 rounded-md min-w-52`}>
-                        <h3>{msg.title}</h3>
-                        <h5>{msg.subTitle}</h5>
+                        className={`${bgColors[msg.bgColor]}  p-2 rounded-md w-56   overflow-ellipsis max-h-20`}>
+                        <h3 className="font-bold text-white">{msg.title}</h3>
+                        <h5 className="text-white overflow-ellipsis">{msg.subTitle}</h5>
                     </div>
                 })}
 

@@ -3,30 +3,13 @@ import GroupSideBar from './components/group-sidebar'
 import { useAuth } from '../../hooks/auth-provider'
 import { GroupProvider } from '../../hooks/group-provider'
 import { Outlet } from 'react-router-dom'
+import { tost } from '../../hooks/tost-provider'
 
 
 const   Chats = () => {
-  const { user, logout } = useAuth()
+  const { user, logout ,isLogin} = useAuth()
 
   let [ws, setWS] = useState<WebSocket>();
-
-  // const [showAllUser, setShowAllUser] = useState(false)
-  // const [showAllGroups, setShowAllGroups] = useState(false)
-  // const [showChatBar, setShowChatBar] = useState(true)
-
-  // const sideBars={
-  //   "chat-bar":setShowChatBar,
-  //   "all-user":setShowAllUser,
-  //   "all-group":setShowAllGroups,
-  // }
-
-
-  // const show=(sidebar:"chat-bar"|"all-user"|"all-group")=>{
-  //   for (const sidebar in sideBars) {
-  //     sideBars[sidebar as "chat-bar"|"all-user"|"all-group"](false)
-  //   }
-  //   sideBars[sidebar](true);
-  // }
 
 
   useEffect(() => {
@@ -50,8 +33,11 @@ const   Chats = () => {
 
 
   return (
-    <GroupProvider user={user!} ws={ws} onError={(_e) => {
-      logout();
+    <GroupProvider user={user!} ws={ws} onError={(e) => {
+      if (e.statusCode===403 && isLogin) {
+        logout();
+      }
+      tost.error(e.errro,e.statusCode?.toString())
     }}>
 
       <div className='flex w-screen h-screen overflow-hidden transition-all duration-1000 ease-in  scroll-smooth bg-green-400 '>

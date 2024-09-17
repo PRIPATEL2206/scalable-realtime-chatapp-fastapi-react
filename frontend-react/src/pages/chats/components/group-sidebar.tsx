@@ -24,7 +24,7 @@ export default function GroupSideBar() {
   }
 
   return (
-    <div className=" bg-red-400 flex flex-col w-80 pt-4 rounded-r-md relative">
+    <div className=" bg-red-400 flex flex-col w-80 p-1 pt-4 rounded-r-md relative">
       <div className="h-fit">
 
         <button className='p-2 w-full hover:bg-red-600 text-start rounded' onClick={() => setShowCreateGroup(pre => !pre)}>
@@ -40,7 +40,7 @@ export default function GroupSideBar() {
             <button className='hover:bg-red-600 rounded py-2'>create</button>
           </form>}
       </div>
-      <div className='mt-5  mb-16 overflow-y-auto flex-1 no-scrollbar'>
+      <div className='mt-1  mb-16 overflow-y-auto flex-1 no-scrollbar'>
         {groups.map(
           (group) => {
             const gName = (group.isIndividualGroup && allUsers[group.name]) ? allUsers[group.name].name : group.name

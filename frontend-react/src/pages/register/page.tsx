@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/auth-provider';
 import { getDataFromFormEvent } from '../../utils/form-utils';
 import { tost } from '../../hooks/tost-provider';
 import { Link, useNavigate } from 'react-router-dom';
+import CustomError from '../../models/error-model';
 
 export default function Register() {
     const [isLoding, setIsLoding] = useState(false);
@@ -24,7 +25,7 @@ export default function Register() {
                 navigate("/login")
                 // TODO : add router
             })
-            .catch(error => tost.error(error.message))
+            .catch(error => tost.error("Error in register ",CustomError.fromString(error.message).errro ))
             .finally(() => {
                 setIsLoding(false)
             })

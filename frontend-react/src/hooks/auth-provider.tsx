@@ -1,6 +1,8 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { User } from '../models/user-model';
 import { useNavigate } from 'react-router-dom';
+import CustomError from '../models/error-model';
+import { tost } from './tost-provider';
 
 interface AuthContextInterface {
     user: User | null
@@ -42,7 +44,10 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
             })
         });
         if (response.status !== 200) {
-            throw Error(`${await response.json()}`)
+            throw Error(new CustomError({
+                error:JSON.stringify(await response.json()),
+                statusCode:response.status
+            }).toString())
         }
         const data = await response.json()
         return new User({ ...data, ...data["user"] })
@@ -92,7 +97,12 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
             return true;
         }
         // console.log(await response.json())
-        throw new Error(JSON.stringify(await response.json()));
+        throw new Error(new CustomError(
+            {
+                error:JSON.stringify(await response.json()),
+                statusCode:response.status
+            }
+        ).toString());
     }
 
     const register = async ({ name, email, password }: { name: string, email: string, password: string }) => {
@@ -114,12 +124,16 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
             console.log("register sucssessfull", await response.json())
             return true
         }
-        throw new Error(JSON.stringify(await response.json()))
+        throw new Error(new CustomError({
+            error:JSON.stringify(await response.json()),
+            statusCode:response.status
+        }).toString())
 
     }
 
     const logout = () => {
         setUser(null);
+        tost.sucsess("Logout !")
     }
     return <AuthContext.Provider value={{ user, isLogin, login, register, logout }}>
         {children}

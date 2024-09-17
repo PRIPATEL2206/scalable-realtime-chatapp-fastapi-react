@@ -3,6 +3,8 @@ import { Group } from '../models/group-model';
 import { Chat } from '../models/chat-model';
 import { User } from '../models/user-model';
 import { streamDataFromReader } from '../utils/stream-data';
+import { tost } from './tost-provider';
+import CustomError from '../models/error-model';
 
 interface GroupContextInterface {
   groups: Group[]
@@ -36,7 +38,7 @@ let sendMassage: (msg: string) => void;
 interface GroupPropsInterface {
   children: ReactNode,
   user: User,
-  onError: (e: Error) => void,
+  onError: (e: CustomError) => void,
   ws?: WebSocket
 
 }
@@ -65,9 +67,10 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
 
       if (response.status !== 200) {
         const error = await response.json()
-        console.log(error)
-        if (onError)
-          onError(Error(error))
+        onError(new CustomError({
+          error: JSON.stringify(error),
+          statusCode: response.status
+        }))
       }
       setGroups(_g => [])
       const inividualChatsUsers: string[] = []
@@ -90,8 +93,9 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
     catch (e: any) {
       console.log(e)
-      if (onError)
-        onError(new Error(e));
+      onError(new CustomError({
+        error: JSON.stringify(e)
+      }));
     }
 
   }
@@ -111,8 +115,10 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       if (response.status !== 200) {
         const error = await response.json()
         console.log(error)
-        if (onError)
-          onError(Error(error))
+        onError(new CustomError({
+          error: JSON.stringify(error),
+          statusCode: response.status
+        }))
       }
       if (onStart) {
         onStart()
@@ -130,8 +136,9 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
     catch (e: any) {
       console.log(e)
-      if (onError)
-        onError(new Error(e));
+      onError(new CustomError({
+        error: JSON.stringify(e)
+      }));
     }
 
   }
@@ -151,7 +158,10 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       })
     });
     if (response.status !== 200) {
-      throw Error(JSON.stringify(await response.json()))
+      onError(new CustomError({
+        error: JSON.stringify(await response.json()),
+        statusCode: response.status
+      }))
     }
     const data = await response.json()
     const newGroup = new Group({ ...data });
@@ -161,6 +171,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       newGroup.name = users[0] === user.id ? users[1] : users[0]
     }
     setGroups(groups => [newGroup, ...groups])
+    tost.sucsess(`${newGroup.name} is created sucsessfuly`)
     return newGroup
   }
 
@@ -181,12 +192,12 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
 
   let handleMassage = async (chat: Chat, event: string) => {
     console.log(event)
-    
-     if (event === "group_join_req") {
+
+    if (event === "group_join_req") {
       chat.conReqSender = new User(JSON.parse(JSON.parse(chat.msg)))
     }
 
-    if (event !== "massage_send" ) {
+    if (event !== "massage_send") {
       if (curentGroup?.id === chat.groupId) {
         setChats(chats => [...chats, chat]);
       }
@@ -212,8 +223,10 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       if (response.status !== 200) {
         const error = await response.json()
         console.log(error)
-        if (onError)
-          onError(Error(error))
+        onError(new CustomError({
+          error: JSON.stringify(error),
+          statusCode: response.status
+        }))
       }
       setChats(_c => [])
       streamDataFromReader({
@@ -230,8 +243,9 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
     catch (e: any) {
       console.log(e)
-      if (onError)
-        onError(new Error(e));
+      onError(new CustomError({
+        error: JSON.stringify(e),
+      }));
     }
 
   }
@@ -254,10 +268,10 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
 
       if (response.status !== 200) {
         const error = await response.json()
-        console.log(error)
-        if (onError) {
-          onError(error)
-        }
+        onError(new CustomError({
+          error: JSON.stringify(error),
+          statusCode: response.status
+        }))
       }
       if (onDataStart) {
         onDataStart()
@@ -278,9 +292,9 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
     catch (e: any) {
       console.log(e)
-      if (onError) {
-        onError(e)
-      }
+      onError(new CustomError({
+        error: JSON.stringify(e)
+      }))
     }
 
   }
@@ -300,8 +314,11 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       if (response.status !== 200) {
         const error = await response.json()
         console.log(error)
-        if (onError)
-          onError(Error(error))
+
+        onError(new CustomError({
+          error: JSON.stringify(error),
+          statusCode: response.status
+        }))
       }
 
       setCurentGroupUsers(_u => ({}));
@@ -317,8 +334,9 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     }
     catch (e: any) {
       console.log(e)
-      if (onError)
-        onError(new Error(e));
+      onError(new CustomError({
+        error: JSON.stringify(e)
+      }));
     }
 
   }
@@ -343,22 +361,23 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       })
     });
     if (response.status !== 200) {
-      if (onError) {
-
-        onError(Error(JSON.stringify(await response.json())))
-      }
+      onError(new CustomError({
+        error: JSON.stringify(await response.json()),
+        statusCode: response.status
+      }))
     }
     const data = await response.json()
     setCurentGroupUsers(users => ({ ...users, ...{ [userId]: allUsers[userId] } }))
+    tost.sucsess(`user added sucsessfuly`)
     console.log(data)
   }
 
   const sendGroupAddReq = async (groupId: string) => {
     const group = groups.find(group => group.id === groupId)
     if (group) {
-      if (onError) {
-        onError(new Error("you are already in group"))
-      }
+      onError(new CustomError({
+        error: "you are already in group",
+      }))
       return
     }
     const response = await fetch("http://127.0.0.1:8000/chats/add-group-req", {
@@ -371,14 +390,14 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       body: JSON.stringify(groupId)
     });
     if (response.status !== 200) {
-      if (onError) {
-
-        onError(Error(JSON.stringify(await response.json())))
-      }
+      onError(new CustomError({
+        error: JSON.stringify(JSON.stringify(await response.json())),
+        statusCode: response.status
+      }))
     }
     const data = await response.json()
     console.log(data)
-
+    tost.sucsess("request send successfuly")
 
   }
 
@@ -402,22 +421,25 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       })
     });
     if (response.status !== 200) {
-      if (onError) {
-        onError(Error(JSON.stringify(await response.json())))
-      }
+      onError(new CustomError({
+        error: JSON.stringify(JSON.stringify(await response.json())),
+        statusCode: response.status
+      }))
     }
     const data = await response.json()
     const temp = curentGroupUsers
     delete temp[userId]
     setCurentGroupUsers(_users => ({ ...temp }))
     console.log(data)
+    tost.sucsess("user deleted sucessfuly")
+
   }
 
 
 
   useEffect(() => {
     fetchGroups();
-  }, [user])
+  }, [])
 
 
   useEffect(() => {
@@ -432,27 +454,27 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
       ws.onmessage = async (e) => {
         console.log(e.data)
         const msg = JSON.parse(e.data)
-        if (msg.event === "new_group_add" || msg.event==="group_remove" ) {
+        if (msg.event === "new_group_add" || msg.event === "group_remove") {
           const group = new Group(JSON.parse(msg.data.group))
-          if (msg.event === "new_group_add"){
+          if (msg.event === "new_group_add") {
             console.log("ok")
-            setGroups(pre =>[group,...pre])
+            setGroups(pre => [group, ...pre])
           }
-          else{
-            setCurentGroup(_p=>undefined)
-            setGroups(groups=>{
-              const index = groups.indexOf(groups.find(g=>g.id===group.id)!)
+          else {
+            setCurentGroup(_p => undefined)
+            setGroups(groups => {
+              const index = groups.indexOf(groups.find(g => g.id === group.id)!)
               return [...groups.slice(0, index), ...groups.slice(index + 1, groups.length)]
             })
 
           }
         }
         else if (msg.event === "unauthorized" && msg.event === "error") {
-          if (onError) {
-            onError(Error(`${msg}`))
-          }   
+          onError(new CustomError({
+            error: `${msg}`
+          }))
         }
-        else{
+        else {
           const chat = new Chat(JSON.parse(msg.data.chat));
           handleMassage(chat, msg.event)
         }
