@@ -1,4 +1,4 @@
-import  { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { Group } from '../../../models/group-model';
 import { useGroup } from '../../../hooks/group-provider';
 
@@ -28,8 +28,9 @@ export default function AllGroupSidebar() {
             </div>
 
             <div className={`p-10 flex-1 flex flex-col`}>
-                <div className="rounded-lg p-3 w-1/3 self-end  bg-white mb-3">
-                    <input type="text" className='w-1/3 outline-none text-black' placeholder='search' onChange={handleSearchChange} />
+                <div className="rounded-lg p-3 flex w-1/3 self-end  bg-white mb-3">
+                    <input type="text" className='flex-1 outline-none text-black' placeholder='search' onChange={handleSearchChange} />
+                    <img className='w-6' src="\public\icons\search.png" alt="search" />
                 </div>
                 {allGroups.map(
                     (group) => {
@@ -37,13 +38,17 @@ export default function AllGroupSidebar() {
                             (group.name.includes(search) || group.des.includes(search)) && <div key={group.id}>
                                 <div className="flex gap-3 justify-between items-center p-2 cursor-pointer hover:bg-red-600 rounded transition-all duration-200 ease-in-out ">
                                     <div className="flex gap-3 items-center p-2">
-                                        <div className="rounded-full bg-green-500 px-4 py-2 font-bold">{group.name.charAt(0).toUpperCase()}</div>
+                                        <div className="rounded-full bg-green-500 p-1 w-10 font-bold">
+                                            <img src="\public\icons\group.png" alt="group" />
+                                        </div>
                                         <div className="">
                                             <h4 className='text-lg'>{group.name}</h4>
                                             <i className='text-sm'>{group.des}</i>
                                         </div>
                                     </div>
-                                    <div className="mr-2 hover:bg-green-500 px-2 py-3 rounded" onClick={() => sendGroupAddReq(group.id)}>Request to Join</div>
+                                    <div className="mr-2 hover:bg-green-500 p-2 w-10 rounded" onClick={() => sendGroupAddReq(group.id)}>
+                                    <img src="\public\icons\add.png" alt="masssge" />
+                                    </div>
                                 </div>
                                 <hr />
                             </div>

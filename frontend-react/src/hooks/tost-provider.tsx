@@ -19,6 +19,8 @@ interface MsgInterface {
     subTitle: string | null
 }
 const TostProvider: React.FC<TostPropsInterface> = ({ children }) => {
+    console.log(import.meta.env.VITE_API_KEY)
+
     const [msgs, setMsg] = useState<MsgInterface[]>([]);
     const bgColors = {
         "green": "bg-green-600",

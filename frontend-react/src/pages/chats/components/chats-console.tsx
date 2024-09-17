@@ -37,14 +37,14 @@ export default function ChatsConsole() {
               curentChatDate = chat.createdAt.toLocaleDateString()
             }
             // check for todays chats
-            if (isNewDate && chat.createdAt.toLocaleDateString()===(new Date()).toLocaleDateString()) {
-              isTodayDate=true
+            if (isNewDate && chat.createdAt.toLocaleDateString() === (new Date()).toLocaleDateString()) {
+              isTodayDate = true
             }
             const isCurentUser = chat.senderId === user?.id
             return (
               <>{isNewDate &&
-                <div  className=' flex justify-center sticky top-0  border-t-2 pt-2'>
-                  <div className="bg-gray-500  rounded-full px-3 text-xs">{isTodayDate?"Today":curentChatDate}</div>
+                <div className=' flex justify-center sticky top-0  border-t-2 pt-2'>
+                  <div className="bg-gray-500  rounded-full px-3 text-xs">{isTodayDate ? "Today" : curentChatDate}</div>
                 </div>}
                 <div key={chat.id} className={`flex  ${chat.isAnyEvent ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
                   <div className={`w-fit min-w-12 p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  ${chat.isAnyEvent ? "bg-gray-400" : "bg-gray-200"}`}>
@@ -72,9 +72,11 @@ export default function ChatsConsole() {
 
       </div>
       {curentGroup && <div className=" static bottom-0  h-14 pb-3 rounded w-full bg-green-400 flex-initial">
-        <form className="mb-2 h-full w-full flex px-5 gap-4" onSubmit={handleSendMassge}>
+        <form className="mb-2 h-full w-full flex px-5 gap-3" onSubmit={handleSendMassge}>
           <input id='chat' type="text" name="chat" className='rounded-2xl outline-none flex-grow p-5 text-black' />
-          <button className='bg-red-500 rounded-xl px-2 outline-none hover:bg-red-600'>send</button>
+          <button className='rounded-full p-2 w-10 outline-none hover:bg-green-600'>
+            <img src="\public\icons\send.png" alt="create group" />
+          </button>
         </form>
       </div>}
     </>

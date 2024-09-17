@@ -1,4 +1,4 @@
-import  { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useAuth } from '../../../hooks/auth-provider';
 import { Group } from '../../../models/group-model';
 import { useGroup } from '../../../hooks/group-provider';
@@ -28,7 +28,7 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
         navigate(`/chats/${chatWithUser.id}`)
     }
 
-    const handleSearchChange=(e:ChangeEvent<HTMLInputElement>)=>{
+    const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value)
     }
 
@@ -54,9 +54,10 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
             }
 
             <div className={`p-10 flex-1 flex flex-col`}>
-                    <div className="rounded-lg p-3 w-1/3 self-end  bg-white mb-3">
-                        <input type="text" className='w-1/3 outline-none text-black' placeholder='search' onChange={handleSearchChange} />
-                    </div>
+                <div className="rounded-lg flex  p-3 w-1/3 self-end  bg-white mb-3">
+                    <input type="text" className='flex-1 outline-none text-black' placeholder='search' onChange={handleSearchChange} />
+                    <img className='w-6' src="\public\icons\search.png" alt="search" />
+                </div>
                 {userIds.map(
                     (id) => {
                         const user = allUsers[id];
@@ -71,15 +72,22 @@ export default function AllUsersSideBar({ isForAddDelete = false }: { isForAddDe
                                     onClick={() => {
                                     }}>
                                     <div className="flex gap-3 items-center p-2">
-                                        <div className="rounded-full bg-green-500 px-4 py-2 font-bold">{user.name.charAt(0).toUpperCase()}</div>
+                                        <div className="rounded-full bg-green-500 w-10 p-1 font-bold">
+                                            <img src="\public\icons\user.png" alt="user" />
+                                        </div>
                                         <div className="">
                                             <h4 className='text-lg'>{user.name}</h4>
                                             <i className='text-sm'>{user.email}</i>
                                         </div>
                                     </div>
                                     {isForAddDelete ?
-                                        <div className={`mr-2 ${isUserAdded ? "hover:bg-red-400" : "hover:bg-green-400"} px-2 text-3xl rounded`} onClick={() => isUserAdded ? deleteUser(user.id) : addUser(user.id)}>{isUserAdded ? "X" : "+"}</div>
-                                        : <div className="mr-2 hover:bg-green-500 px-2 py-3 rounded" onClick={() => handlePersonalMsg(user.id)}>Massage</div>}
+                                        <div className={`mr-2 ${isUserAdded ? "hover:bg-red-400" : "hover:bg-green-400"} p-2 w-10 text-3xl rounded`} onClick={() => isUserAdded ? deleteUser(user.id) : addUser(user.id)}>{
+                                            isUserAdded ?
+                                            <img src="\public\icons\delete.png" alt="delete" />                                            :
+                                            <img src="\public\icons\add-friend.png" alt="add" />                                            }</div>
+                                        : <div className="mr-2 hover:bg-green-500 p-2 w-10 rounded" onClick={() => handlePersonalMsg(user.id)}>
+                                                <img src="\public\icons\chat.png" alt="masssge" />
+                                        </div>}
                                 </div>
                                 <hr />
                             </div>

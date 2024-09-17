@@ -25,8 +25,7 @@ export default function Login() {
                 navigate("/chats")
             })
             .catch(error =>
-                // console.log(JSON.parse(error.message))
-                tost.error("login fail",CustomError.fromString(error.message).errro)
+                tost.error("login fail")
             )
             .finally(() => {
                 setIsLoding(false)
