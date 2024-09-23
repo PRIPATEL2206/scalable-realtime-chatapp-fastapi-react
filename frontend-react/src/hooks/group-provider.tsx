@@ -29,7 +29,7 @@ const GroupContext = createContext<GroupContextInterface | undefined>(undefined)
 const useGroup = () => {
   const context = useContext(GroupContext);
   if (context === undefined) {
-    throw new Error("useAuth must most be use with in a AuthProvider");
+    throw new Error("useGroup must most be use with in a GroupProvider");
   }
   return context;
 }
@@ -493,4 +493,4 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
 
 
 
-export { useGroup, GroupProvider, sendMassage }
+export { useGroup, GroupProvider }

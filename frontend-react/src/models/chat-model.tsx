@@ -26,8 +26,8 @@ class Chat {
         group_id: string,
         created_at: string,
         sender_id: string,
-        is_conection_req: boolean
-        is_any_event: boolean
+        is_conection_req?: boolean
+        is_any_event?: boolean
         con_req_sender?: User
     }
     ) {

@@ -32,7 +32,17 @@ export default function GeminiWraper() {
 
   return (
     <GeminiProvider ws={ws!}>
-      <GeminiConsole />
+      <div id='chat-sidebar' className='relative flex-1 bg-green-400 rounded flex flex-col'>
+        <div className="sticky w-full bg-red-400 p-2 min-h-14 rounded flex gap-3 items-center justify-between shadow-lg cursor-pointer"  >
+          <div className="flex gap-3 items-center " >
+            <div className="rounded-full bg-green-500 w-10 p-2">
+              <img src="\public\icons\gemini.png" alt="Gemini" />
+            </div>
+            <h5>Gemini</h5>
+          </div>
+        </div>
+        <GeminiConsole />
+      </div>
     </GeminiProvider>
   )
 }

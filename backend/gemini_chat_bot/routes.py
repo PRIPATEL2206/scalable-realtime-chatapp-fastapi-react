@@ -49,6 +49,7 @@ async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
                 event=data["event"]
                 data=data["data"]
 
+                print(user)
                 match event :
                     case Events.AUTHORIZATION:
                         token=data["Authorization"]
@@ -60,15 +61,16 @@ async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
                                 {"role": "model", "parts": "Great to meet you. What would you like to know?"},
                             ]
                         )
+                    
                     case Events.MASSAGE_SEND if user!=None:
-                        prompt=data["msg"]
+                        prompt=data["prompt"]
                         response = chat.send_message(prompt,stream=True)
                         for chunk in response:
                             chat_res=Res_anser(
                                  msg=chunk.text,
                                  created_at=datetime.now()
                             )
-                            websocket.send_text(MassageBuilder.build_massage_recive_event(chat_res.model_dump_json())) 
+                            await websocket.send_text(MassageBuilder.build_massage_recive_event(chat_res.model_dump_json())) 
 
     except Exception as e:
          websocket.close()
