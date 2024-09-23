@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse
 from chat_websockets.user_massage_manager  import UserSocketManager, MassageBuilder,UserSocketHelper
 from auth.dependency import get_curent_user_from_tocken,get_current_user
 from db.base_db import get_db
-from chat_websockets.request_models import Req_Chat,Req_Group,AddDeleteUserGroupReq
+from chat_websockets.request_models import Req_Chat,Req_Group,AddDeleteUserGroupReq,Update_Req_Group
 from chat_websockets.response_models import Res_Group,Res_Chat
 from chat_websockets.db_models import Group,Chat
 from auth.db_models import User
@@ -13,7 +13,6 @@ from sqlalchemy.orm import Session
 from chat_websockets.constants import Events
 from utils.genratore_util import get_genratore
 import json
-from datetime import datetime
 
 
 router = APIRouter(
@@ -44,6 +43,17 @@ async def create_group(req_group:Req_Group,user:User=Depends(get_current_user),d
     group.created_by = user.id
     group.add(db)
     return Res_Group.model_validate(group)
+
+@router.put("/group")
+async def update_group(req_group:Update_Req_Group,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
+    group:Group=db.get(req_group.id)
+    if req_group.name:
+        group.name=req_group.name
+    if req_group.des:
+        group.des=req_group.des
+    
+    group.update(db)
+    return Res_Group.model_validate(group).model_dump_json()
 
 @router.get("/get-my-groups")
 async def get_users_groups(user:User=Depends(get_current_user)):
@@ -287,7 +297,7 @@ async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
                             await socketHelper.send_personal_msg(MassageBuilder.build_massage_send_event(chat_res.model_dump_json()))
                             await socketHelper.broadcast_all_in_group(chat.group_id,MassageBuilder.build_massage_recive_event(chat_res.model_dump_json())) 
                         else:
-                            await socketHelper.send_personal_msg(MassageBuilder.build_error_event({"error":"error while sending massage"}))
+                            await socketHelper.send_personal_msg(MassageBuilder.build_error_event({"error":"error while sending massage you are not in group"}))
 
                     
             except Exception as e:

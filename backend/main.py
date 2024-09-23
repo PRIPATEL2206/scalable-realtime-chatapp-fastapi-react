@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+
+# load envs
+load_dotenv()
+
 from fastapi import FastAPI,Depends
 from fastapi.middleware.cors import CORSMiddleware
 from auth.response_models import Response_User
@@ -5,6 +10,8 @@ from auth.dependency import get_current_user
 from db.base_db import create_tables
 from auth.routes import router as auth_router
 from chat_websockets.routes import router as chat_websocket_router
+
+from gemini_chat_bot.routes import router as gemini_routes
 
 app= FastAPI()
 
@@ -25,5 +32,6 @@ def home(user:Response_User=Depends(get_current_user)):
 
 app.include_router(auth_router)
 app.include_router(chat_websocket_router)
+app.include_router(gemini_routes)
 
 create_tables()

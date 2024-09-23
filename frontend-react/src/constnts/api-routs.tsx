@@ -4,6 +4,7 @@ const API_ROUTES = {
     LOGIN:BASE+"/auth/login",
     REGISTER:BASE+"/auth/register",
     GET_USERS:BASE+"/auth/users",
+    UPDATE_USER:BASE+"/auth/user",
 
     GET_MY_GROUP:BASE+"/chats/get-my-groups",
     GET_ALl_GROUP:BASE+"/chats/get-all-groups",

@@ -11,7 +11,7 @@ from auth.utils import (
 )
 
 from auth.db_models import User
-from auth.response_models import Response_User,TokenSchema,Request_User,Payload,RefreshTokenReqest
+from auth.response_models import Response_User,TokenSchema,Request_User,Update_Request_User,Payload,RefreshTokenReqest
 from sqlalchemy.orm import Session
 from auth.dependency import get_current_user
 from utils.genratore_util import get_genratore
@@ -104,6 +104,13 @@ def refresh_token(request:RefreshTokenReqest,db: Session = Depends(get_db)):
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+@router.post("/user")
+def update_user(new_user:Update_Request_User,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
+    if new_user.name:
+         user.name=new_user.name
+    user.update(db)
+    return Response_User.model_validate(user).model_dump_json()
 
 
 @router.post('/users')

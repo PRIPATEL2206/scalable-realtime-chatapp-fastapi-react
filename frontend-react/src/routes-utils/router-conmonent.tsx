@@ -10,6 +10,8 @@ import AllGroupSidebar from '../pages/chats/components/all-groupsidebar';
 import AllUsersSideBar from '../pages/chats/components/all-usersidebar';
 import GroupUsersSideBar from '../pages/chats/components/group-users-sidebar';
 import ChatsConsole from '../pages/chats/components/chats-console';
+import ProfilePage from '../pages/profile/page';
+import GeminiWraper from '../pages/chats/gemini/gemini-chats-wraper';
 
 export default function RouterComponent() {
 
@@ -27,7 +29,23 @@ export default function RouterComponent() {
       path: "/chats",
       element: isLogin ? <Chats /> : <Navigate to="/login" replace />,
       children: [
-      
+        {
+          path: "all-groups",
+          element: <AllGroupSidebar />
+        },
+        {
+          path: "all-users",
+          element: <AllUsersSideBar />
+        },
+        {
+          path: "profile",
+          element:  <ProfilePage />
+        },
+        {
+          path: "gemini",
+          element:  <GeminiWraper />
+        },
+
         {
           path: ":id",
           element: <ChatSideBar />,
@@ -46,14 +64,8 @@ export default function RouterComponent() {
             }
           ]
         },
-        {
-          path: "all-groups",
-          element: <AllGroupSidebar />
-        },
-        {
-          path: "all-users",
-          element: <AllUsersSideBar />
-        }
+
+
 
       ]
 
@@ -66,7 +78,6 @@ export default function RouterComponent() {
     {
       path: "/register",
       element: !isLogin ? <Register /> : <Navigate to="/chats" />
-
     }
   ]);
 

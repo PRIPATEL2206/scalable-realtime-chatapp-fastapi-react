@@ -8,7 +8,11 @@ export default function GroupUsersSideBar() {
     const [userIds, setUserIds] = useState<string[]>([]);
     const [search, setSearch] = useState("")
     const { createGroup, groups, addUser, setCurentGroup, curentGroupUsers, curentGroup } = useGroup();
+    const [isEdited, setIsEdited] = useState(false);
 
+    const handleEdit = () => {
+
+    }
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value)
@@ -43,6 +47,28 @@ export default function GroupUsersSideBar() {
         <div id='chat-sidebar' className='relative w-full  bg-green-400 rounded overflow-y-auto no-scrollbar'>
 
             <div className="p-10 flex-1 flex flex-col">
+
+                <div id='chat-sidebar' className='relative flex-1 mb-10 bg-green-400 rounded flex gap-3 items-center  flex-col overflow-y-auto no-scrollbar '>
+
+                    <div className="border-white border-4 w-24 p-2 rounded-full ">
+                        <img src="\public\icons\group.png" alt="profile" />
+                    </div>
+                    <h6 className="text-xs">{curentUser?.id}</h6>
+                    <form className="bg-green-300 w-1/2  p-3 rounded-lg flex flex-col gap-3" onChange={() => setIsEdited(true)} onSubmit={handleEdit}>
+                        <div className="flex">
+
+                            <h3 className="w-36">Group Name :</h3>
+                            <input name="username" className="bg-inherit p-1 border ml-2 focus:outline w-full" type="text" defaultValue={curentGroup?.name} />
+                        </div>
+                        <div className="flex">
+
+                            <h3 className="w-36 ">Description :</h3>
+                            <textarea name="email" className="bg-inherit p-1 ml-2 border focus:outline w-full" defaultValue={curentGroup?.des} >
+                            </textarea>
+                        </div>
+                        {isEdited && <button className="bg-green-400 py-1  hover:bg-green-500">save</button>}
+                    </form>
+                </div>
                 <div className="rounded-lg p-3 flex w-1/3 self-end  bg-white mb-3">
                     <input type="text" className='flex-1 outline-none text-black' placeholder='search' onChange={handleSearchChange} />
                     <img className='w-6' src="\public\icons\search.png" alt="search" />

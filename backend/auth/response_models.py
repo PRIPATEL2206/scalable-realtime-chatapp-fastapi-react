@@ -9,6 +9,12 @@ class Request_User(BaseModel):
 
     class Config:
         from_attributes=True
+
+class Update_Request_User(BaseModel):
+    name:Optional[str]
+
+    class Config:
+        from_attributes=True
     
 class Response_User(BaseModel):
     id:str

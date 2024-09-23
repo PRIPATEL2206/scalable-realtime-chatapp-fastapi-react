@@ -43,14 +43,6 @@ const   Chats = () => {
       <div className='flex w-screen h-screen overflow-hidden transition-all duration-1000 ease-in  scroll-smooth bg-green-400 '>
         <GroupSideBar />
         <Outlet />
-        {/* {showChatBar && <ChatSideBar/>}
-        {showAllUser && <AllUsersSideBar/>}
-        {showAllGroups && <AllGroupSidebar/>} */}
-
-
-        {/* <h1>user name {user?.name}</h1>
-      <button onClick={handleClick}>send</button> */}
-
       </div>
     </GroupProvider>
 

@@ -1,14 +1,12 @@
 
 import React, { useState } from 'react'
 import { useGroup } from '../../../hooks/group-provider'
-import { useAuth } from '../../../hooks/auth-provider'
 import { getDataFromFormEvent } from '../../../utils/form-utils'
 import { tost } from '../../../hooks/tost-provider'
 import { Link } from 'react-router-dom'
 
 export default function GroupSideBar() {
   const { groups, setCurentGroup, createGroup, curentGroup, allUsers } = useGroup()
-  const { logout } = useAuth()
 
 
   const [showCreateGroup, setShowCreateGroup] = useState(false)
@@ -39,9 +37,9 @@ export default function GroupSideBar() {
         <Link to="/chats/all-users" className='p-3 w-14 absolute bottom-3 right-3 rounded-full hover:bg-red-600 text-start ' >
           <img src="\public\icons\chat.png" alt="create group" />
         </Link>
-        <button className='p-1  w-9 hover:bg-red-600 text-start rounded-lg' onClick={logout}>
-          <img src="\public\icons\exit.png" alt="logout" />
-        </button>
+        <Link to="profile" className='p-1  w-9 hover:bg-red-600 text-start rounded-lg' >
+          <img src="\public\icons\profile-user.png" alt="profile" />
+        </Link>
       </div>
       {showCreateGroup &&
         <form className="flex flex-col gap-2 mt-2" onSubmit={handleCreateGroup}>
@@ -52,6 +50,7 @@ export default function GroupSideBar() {
           </button>
         </form>}
       <div className='my-1 overflow-y-auto flex-1 no-scrollbar'>
+        <Link to="gemini">Gemini</Link>
         {groups.map(
           (group) => {
             const gName = (group.isIndividualGroup && allUsers[group.name]) ? allUsers[group.name].name : group.name

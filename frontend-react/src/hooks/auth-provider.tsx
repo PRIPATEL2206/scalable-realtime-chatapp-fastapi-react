@@ -11,6 +11,7 @@ interface AuthContextInterface {
     login: ({ email, password }: { email: string, password: string }) => Promise<boolean>
     register: ({ email, password, name }: { email: string, password: string, name: string }) => Promise<boolean>
     logout: () => void
+    updateUser:({username}:{username?:string})=>Promise<boolean>
 }
 const AuthContext = createContext<AuthContextInterface | undefined>(undefined);
 
@@ -136,7 +137,34 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
         setUser(null);
         tost.sucsess("Logout !")
     }
-    return <AuthContext.Provider value={{ user, isLogin, login, register, logout }}>
+
+    const updateUser=async ({username}:{username?:string})=>{
+        const response = await fetch(API_ROUTES.UPDATE_USER,
+            {
+                method: "post",
+                headers: {
+                    accept: "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user?.access_token}`
+                },
+                body: JSON.stringify({
+                    name:username
+                })
+            }
+        )
+        if (response.status !== 200) {
+            throw new Error(new CustomError({
+                error:JSON.stringify(await response.json()),
+                statusCode:response.status
+            }).toString())
+        }
+        const data =JSON.parse(await response.json())
+        const newUser = new  User({...user?.toJson(),...(data)})
+        setUser(newUser)
+        return true
+
+    }
+    return <AuthContext.Provider value={{ user, isLogin, login, register, logout , updateUser }}>
         {children}
     </AuthContext.Provider>
 }
