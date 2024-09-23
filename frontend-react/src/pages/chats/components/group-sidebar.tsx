@@ -50,7 +50,21 @@ export default function GroupSideBar() {
           </button>
         </form>}
       <div className='my-1 overflow-y-auto flex-1 no-scrollbar'>
-        <Link to="gemini">Gemini</Link>
+      <Link to="/chats/gemini" >
+              <div className={`flex gap-3 h-14 items-center p-2 cursor-pointer  hover:bg-red-600 rounded transition-all duration-200 ease-in-out `}
+                onClick={() => {
+                  setTimeout(() => {
+                    document.getElementById("chat")?.focus()
+                  }, 300);
+
+                }} >
+                <div className="rounded-full w-8 bg-red-400 p-1">
+                      <img src="\public\icons\gemini.png" alt="group" />
+                </div>
+                <h5 className=''>Gemini</h5>
+              </div>
+              <hr />
+            </Link>
         {groups.map(
           (group) => {
             const gName = (group.isIndividualGroup && allUsers[group.name]) ? allUsers[group.name].name : group.name

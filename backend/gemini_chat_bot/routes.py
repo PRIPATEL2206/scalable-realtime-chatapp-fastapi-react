@@ -64,13 +64,13 @@ async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
                     
                     case Events.MASSAGE_SEND if user!=None:
                         prompt=data["prompt"]
-                        response = chat.send_message(prompt,stream=True)
-                        for chunk in response:
-                            chat_res=Res_anser(
-                                 msg=chunk.text,
+                        response = chat.send_message(prompt)
+                        
+                        chat_res=Res_anser(
+                                 msg=response.text,
                                  created_at=datetime.now()
                             )
-                            await websocket.send_text(MassageBuilder.build_massage_recive_event(chat_res.model_dump_json())) 
+                        await websocket.send_text(MassageBuilder.build_massage_recive_event(chat_res.model_dump_json())) 
 
     except Exception as e:
          websocket.close()

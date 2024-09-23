@@ -28,8 +28,8 @@ export default function GeminiConsole() {
           (chat, i) => {
             const isCurentUser = chat.senderId === user?.id
             return (
-              <div key={i} className={`flex  ${isCurentUser ? "justify-end" : ""} `}>
-                <div className={`w-fit min-w-12 p-2 my-1 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-200`}>
+              <div key={i} className={`flex ${isCurentUser ? "justify-end" : ""} `}>
+                <div className={`min-w-12 max-w-[50%] p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  bg-gray-200`}>
                   <small>{isCurentUser ? "You" : "Gemini"}</small>
                   <h6>{chat.msg}</h6>
                   <h6 className='text-[10px] float-end '>{`${chat.createdAt.toLocaleTimeString().slice(0, -6)} ${chat.createdAt.toLocaleTimeString().slice(-3)}`}</h6>
