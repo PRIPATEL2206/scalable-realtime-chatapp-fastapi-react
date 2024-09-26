@@ -35,3 +35,8 @@ app.include_router(chat_websocket_router)
 app.include_router(gemini_routes)
 
 create_tables()
+
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app)
