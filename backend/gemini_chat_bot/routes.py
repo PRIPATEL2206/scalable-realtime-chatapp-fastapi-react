@@ -24,19 +24,6 @@ genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 
-# chat = model.start_chat(
-#     history=[
-#         {"role": "user", "parts": "Hello"},
-#         {"role": "model", "parts": "Great to meet you. What would you like to know?"},
-#     ]
-# )
-# response = chat.send_message("I have 2 dogs in my house.")
-# response = chat.send_message("How many paws are in my house?",stream=True)
-# for chunk in response:
-#     print(chunk.text)
-#     print("//////////")
-
-
 @router.websocket("/chat")
 async def websocket_endpoint(websocket:WebSocket,db:Session=Depends(get_db)):
     await websocket.accept()
