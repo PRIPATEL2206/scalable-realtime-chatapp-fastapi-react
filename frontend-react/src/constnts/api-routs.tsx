@@ -3,6 +3,7 @@ const BASE= import.meta.env.VITE_API_BASE_URL
 const API_ROUTES = {
     LOGIN:BASE+"/auth/login",
     REGISTER:BASE+"/auth/register",
+    REFRESH_TOCKEN:BASE+"auth/refresh-token",
     GET_USERS:BASE+"/auth/users",
     UPDATE_USER:BASE+"/auth/user",
 

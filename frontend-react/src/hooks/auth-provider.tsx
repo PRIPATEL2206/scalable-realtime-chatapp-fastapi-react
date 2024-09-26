@@ -35,7 +35,7 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     const [isLogin, setIsLogin] = useState<boolean>(false);
 
     const getRefreshTocken = async (reftoken: string) => {
-        const response = await fetch("http://127.0.0.1:8000/auth/refresh-token", {
+        const response = await fetch(API_ROUTES.REFRESH_TOCKEN, {
             method: "post",
             headers: {
                 accept: "application/json",
@@ -110,6 +110,7 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     const register = async ({ name, email, password }: { name: string, email: string, password: string }) => {
         const response = await fetch(API_ROUTES.REGISTER,
             {
+                mode: 'no-cors',
                 method: "post",
                 headers: {
                     accept: "application/json",
