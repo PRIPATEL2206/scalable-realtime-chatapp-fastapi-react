@@ -36,7 +36,7 @@ class Group {
     toJson = () => ({
         id: this.id,
         name: this.name,
-        last_updated: this.lastUpdated,
+        last_updated: this.lastUpdated.toString(),
         created_at: this.createdAt.toString(),
         created_by: this.createdBy.toString(),
         des: this.des,

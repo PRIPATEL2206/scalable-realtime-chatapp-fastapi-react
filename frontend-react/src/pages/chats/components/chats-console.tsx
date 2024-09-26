@@ -25,7 +25,6 @@ export default function ChatsConsole() {
 
   return (
     <>
-
       <div id="all-chats" className="px-10 flex-1 h-full overflow-auto no-scrollbar">
         {chats.map(
           chat => {
@@ -42,11 +41,12 @@ export default function ChatsConsole() {
             }
             const isCurentUser = chat.senderId === user?.id
             return (
-              <>{isNewDate &&
-                <div className=' flex justify-center sticky top-0  border-t-2 pt-2'>
+              <div key={chat.id}
+              >{isNewDate &&
+                <div className=' flex justify-center sticky top-0  border-t-2 pt-2' >
                   <div className="bg-gray-500  rounded-full px-3 text-xs">{isTodayDate ? "Today" : curentChatDate}</div>
                 </div>}
-                <div key={chat.id} className={`flex  ${chat.isAnyEvent ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
+                <div className={`flex  ${chat.isAnyEvent ? "justify-center" : isCurentUser ? "justify-end" : ""} `}>
                   <div className={`w-fit min-w-12 p-2 my-2 rounded-lg ${isCurentUser ? "rounded-tr-none" : "rounded-tl-none"}  ${chat.isAnyEvent ? "bg-gray-400" : "bg-gray-200"}`}>
                     {!chat.isAnyEvent &&
                       curentGroupUsers &&
@@ -64,7 +64,7 @@ export default function ChatsConsole() {
 
                   </div>
                 </div>
-              </>
+              </div>
 
             )
           }

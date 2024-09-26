@@ -46,7 +46,13 @@ async def create_group(req_group:Req_Group,user:User=Depends(get_current_user),d
 
 @router.put("/group")
 async def update_group(req_group:Update_Req_Group,user:User=Depends(get_current_user),db:Session=Depends(get_db)):
-    group:Group=db.get(req_group.id)
+    group:Group=db.get(Group,req_group.id)
+
+    if user not in group.users :
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"user not in Group"
+        )
     if req_group.name:
         group.name=req_group.name
     if req_group.des:
@@ -129,6 +135,9 @@ async def add_in_group(add_in_group:AddDeleteUserGroupReq,user:User=Depends(get_
     
     group.users.append(user_to_add)
     group.update(db)
+
+    await userSocketManager.send_personal_msg(user_to_add.id,MassageBuilder.build_new_group_add_event(Res_Group.model_validate(group).model_dump_json()))
+    
     if not group.is_individual_group:
 
         chat = Chat(
@@ -139,7 +148,6 @@ async def add_in_group(add_in_group:AddDeleteUserGroupReq,user:User=Depends(get_
             )
         chat.add(db)
         chat_res=Res_Chat.model_validate(chat)
-        await userSocketManager.send_personal_msg(user_to_add.id,MassageBuilder.build_new_group_add_event(Res_Group.model_validate(group).model_dump_json()))
         await userSocketManager.broadcast_all_in_group(user,chat.group_id,MassageBuilder.build_group_add_event(chat_res.model_dump_json()))
 
     return {"event":"user added"}

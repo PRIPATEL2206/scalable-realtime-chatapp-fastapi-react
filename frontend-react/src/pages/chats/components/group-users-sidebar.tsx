@@ -2,16 +2,26 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { useAuth } from '../../../hooks/auth-provider';
 import { Group } from '../../../models/group-model';
 import { useGroup } from '../../../hooks/group-provider';
+import { getDataFromFormEvent } from '../../../utils/form-utils';
+import { tost } from '../../../hooks/tost-provider';
 
 export default function GroupUsersSideBar() {
     const { user: curentUser } = useAuth();
     const [userIds, setUserIds] = useState<string[]>([]);
     const [search, setSearch] = useState("")
-    const { createGroup, groups, addUser, setCurentGroup, curentGroupUsers, curentGroup } = useGroup();
+    const { createGroup,updateGroup, groups, addUser, setCurentGroup, curentGroupUsers, curentGroup } = useGroup();
     const [isEdited, setIsEdited] = useState(false);
 
-    const handleEdit = () => {
-
+    const handleEdit = (form: React.FormEvent<HTMLFormElement>) => {
+        form.preventDefault()
+        const { name , des } = getDataFromFormEvent(form);
+        curentGroup?.toJson()
+        const updatedGroup=new Group({...curentGroup!.toJson(),...{name,des}})
+        updateGroup(updatedGroup).then(
+            _ => tost.sucsess("Updated sucsessfuly")
+        ).catch(
+            e => tost.error(e)
+        )
     }
 
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -58,15 +68,15 @@ export default function GroupUsersSideBar() {
                         <div className="flex">
 
                             <h3 className="w-36">Group Name :</h3>
-                            <input name="username" className="bg-inherit p-1 border ml-2 focus:outline w-full" type="text" defaultValue={curentGroup?.name} />
+                            <input name="name" className="bg-inherit p-1 border ml-2 focus:outline w-full" type="text" defaultValue={curentGroup?.name} />
                         </div>
                         <div className="flex">
 
                             <h3 className="w-36 ">Description :</h3>
-                            <textarea name="email" className="bg-inherit p-1 ml-2 border focus:outline w-full" defaultValue={curentGroup?.des} >
+                            <textarea name="des" className="bg-inherit p-1 ml-2 border focus:outline w-full" defaultValue={curentGroup?.des} >
                             </textarea>
                         </div>
-                        {isEdited && <button className="bg-green-400 py-1  hover:bg-green-500">save</button>}
+                        {isEdited && <button className="bg-green-400 py-1  hover:bg-green-500" >save</button>}
                     </form>
                 </div>
                 <div className="rounded-lg p-3 flex w-1/3 self-end  bg-white mb-3">

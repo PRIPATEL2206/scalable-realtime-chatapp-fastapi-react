@@ -12,6 +12,8 @@ const API_ROUTES = {
     GROUP_ADD_USER:BASE+"/chats/add-in-group",
     GROUP_DELETE_USER:BASE+"/chats/delete-from-group",
     GROUP_ADD_REQ:BASE+"/chats/add-group-req",
+    UPDATE_GROUP:BASE+"/chats/group",
+
     GET_CHATS:(group_id:string)=>BASE+"/chats/get-chats?group_id="+group_id,
     GET_GROUP_USERS:(groupId:string)=>BASE+"/chats/get-group-user?group_id="+groupId,
 

@@ -23,7 +23,7 @@ export default function ChatSideBar() {
                  <img src="\public\icons\group.png" alt="create group" />
               }
             </div>
-            <h5>{curentGroup.isIndividualGroup && curentGroupUsers[curentGroup.name] ? curentGroupUsers[curentGroup.name].name : curentGroup.name}</h5>
+            <h5>{curentGroup.isIndividualGroup && curentGroupUsers && curentGroupUsers[curentGroup.name] ? curentGroupUsers[curentGroup.name].name : curentGroup.name}</h5>
           </div>
           {
             location.pathname.includes("add-users") ?

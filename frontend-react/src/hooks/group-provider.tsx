@@ -13,6 +13,7 @@ interface GroupContextInterface {
   setCurentGroup: (group: Group) => void
   createGroup: ({ groupName, des, isIndividual }: { groupName: string, des: string, isIndividual?: boolean }) => Promise<Group>
   fetchAllGroups: ({ onGroup, onStart }: { onGroup: (group: Group) => void, onStart?: () => void }) => Promise<void>
+  updateGroup:(group:Group)=>Promise<void>
 
   chats: Chat[]
   sendMassage: (msg: string) => void
@@ -174,6 +175,34 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
     setGroups(groups => [newGroup, ...groups])
     tost.sucsess(`${newGroup.name} is created sucsessfuly`)
     return newGroup
+  }
+
+  const updateGroup = async(group:Group)=>{
+    const response = await fetch(API_ROUTES.UPDATE_GROUP, {
+      method: "put",
+      headers: {
+        accept: "application/json",
+        'Authorization': `Bearer ${user.access_token}`,
+        'Content-Type': "application/json"
+      },
+      body: JSON.stringify({
+        id:group.id,
+        name:group.name,
+        des:group.des
+      })
+    });
+    if (response.status !== 200) {
+      onError(new CustomError({
+        error: JSON.stringify(await response.json()),
+        statusCode: response.status
+      }))
+    }
+    const data = JSON.parse(await response.json())
+    const newGroup = new Group({ ...data });
+    setGroups(groups => {
+      const index = groups.map(groups => groups.id).indexOf(newGroup.id)
+      return [newGroup, ...groups.slice(0, index), ...groups.slice(index + 1, groups.length)]
+    })
   }
 
 
@@ -485,7 +514,7 @@ const GroupProvider: React.FC<GroupPropsInterface> = ({ children, user, onError,
   }, [ws, curentGroup])
 
 
-  return <GroupContext.Provider value={{ groups, chats, setCurentGroup, sendMassage, createGroup, curentGroup, addUser, deleteUser, allUsers, fetchUsers, curentGroupUsers, fetchAllGroups, sendGroupAddReq }}>
+  return <GroupContext.Provider value={{ groups, chats, setCurentGroup,updateGroup, sendMassage, createGroup, curentGroup, addUser, deleteUser, allUsers, fetchUsers, curentGroupUsers, fetchAllGroups, sendGroupAddReq }}>
     {children}
   </GroupContext.Provider>
 }
