@@ -3,7 +3,6 @@ import { useAuth } from '../../hooks/auth-provider';
 import { getDataFromFormEvent } from '../../utils/form-utils';
 import { tost } from '../../hooks/tost-provider';
 import { Link, useNavigate } from 'react-router-dom';
-import CustomError from '../../models/error-model';
 
 export default function Login() {
 
@@ -24,7 +23,7 @@ export default function Login() {
                 console.log("login ", value);
                 navigate("/chats")
             })
-            .catch(error =>
+            .catch(_error =>
                 tost.error("login fail")
             )
             .finally(() => {
