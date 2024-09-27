@@ -30,6 +30,10 @@ app.add_middleware(
 def home(user:Response_User=Depends(get_current_user)):
     return {"name":user.email}
 
+@app.get("/helthy")
+def helth_check():
+    return "ok"
+
 app.include_router(auth_router)
 app.include_router(chat_websocket_router)
 app.include_router(gemini_routes)
