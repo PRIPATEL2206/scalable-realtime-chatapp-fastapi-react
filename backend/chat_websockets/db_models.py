@@ -5,11 +5,11 @@ from sqlalchemy.orm import relationship
 class Chat(CustomBaseDB,Base):
     __tablename__="chats"
     
-    sender_id=Column(String(20),ForeignKey("users.id"))
-    group_id=Column(String(20),ForeignKey("groups.id"))
+    sender_id=Column(String,ForeignKey("users.id"))
+    group_id=Column(String,ForeignKey("groups.id"))
     is_conection_req=Column(Boolean,default=False)
     is_any_event:bool=Column(Boolean,default=False)
-    msg=Column(String())
+    msg=Column(String)
 
 
 users_groups=Table("users_groups",Base.metadata,
@@ -20,10 +20,10 @@ users_groups=Table("users_groups",Base.metadata,
 class Group(CustomBaseDB,Base):
     __tablename__="groups"
     
-    name=Column(String(20))
-    des=Column(String(50))
+    name=Column(String)
+    des=Column(String)
     is_individual_group=Column(Boolean,default=False)
-    created_by=Column(String(20),ForeignKey("users.id"))
+    created_by=Column(String,ForeignKey("users.id"))
     users=relationship("User",secondary=users_groups,back_populates="groups")
 
     def has_user(self,user_id:str)->bool:

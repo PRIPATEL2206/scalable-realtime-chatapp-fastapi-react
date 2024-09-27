@@ -31,13 +31,13 @@ router=APIRouter(
 @router.post('/register', summary="Create new user", response_model=Response_User)
 async def create_user(data: Request_User,db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
+    print("ok")
     
     if user is not None:
             raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email already exist"
         )
-    
     data.password = get_hashed_password(data.password)
     newUser=User(**data.model_dump())   # saving user to database
     newUser.add(db)

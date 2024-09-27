@@ -8,6 +8,6 @@ class User(CustomBaseDB,Base):
 
     name=Column(String(50),default="")
     email=Column(String(50), unique=True)
-    password=Column(String())
+    password=Column(String(100))
     groups=relationship("Group",secondary=users_groups,back_populates="users")
 

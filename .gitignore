@@ -1,4 +1,5 @@
 .venv
 .env
 chat.db
+alembic
 alembic.ini
