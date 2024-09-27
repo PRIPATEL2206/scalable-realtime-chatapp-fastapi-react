@@ -84,8 +84,10 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
     const login = async ({ email, password }: { email: string, password: string }) => {
         const response = await fetch(API_ROUTES.LOGIN ,
             {
+                mode: 'no-cors',
                 method: "post",
                 headers: {
+                    
                     accept: "application/json",
                     "Content-Type": "application/x-www-form-urlencoded"
                 },
@@ -125,7 +127,7 @@ const AuthProvider: React.FC<AuthPropsInterface> = ({ children }) => {
         )
         if (response.status === 200) {
             console.log("register sucssessfull", await response.json())
-            return true
+            return true;
         }
         throw new Error(new CustomError({
             error:JSON.stringify(await response.json()),
