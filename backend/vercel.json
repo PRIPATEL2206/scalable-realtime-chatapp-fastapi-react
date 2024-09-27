@@ -1,5 +1,6 @@
 {
     "version": 2,
+    "buildCommand": "pip install psycopg2-binary psycopg2",
     "builds": [
       {
         "src": "main.py",
